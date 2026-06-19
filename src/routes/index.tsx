@@ -1,20 +1,46 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShoppingBag, Sparkles, ShieldCheck, Truck } from "lucide-react";
+import {
+  Wallet,
+  CreditCard,
+  Truck,
+  Radio,
+  Tag,
+  Zap,
+  Star,
+  Sparkles,
+  Clock,
+  PlayCircle,
+  ShoppingBag,
+  Users,
+  Plus,
+} from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { PremiumCard } from "@/components/common/PremiumCard";
-import { SectionHeading } from "@/components/common/SectionHeading";
 import { BrandButton } from "@/components/brand/BrandButton";
+import { ProductRow } from "@/components/catalog/ProductRow";
+import {
+  CATEGORIES,
+  FEATURED,
+  FLASH_DEALS,
+  RECENTLY_ADDED,
+  TOP_SELLING,
+  formatPrice,
+} from "@/lib/catalog-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MRS Staff Coop Store — Members' Marketplace" },
+      { title: "MRS Staff Coop Store — Quality products, great prices, delivered to you" },
       {
         name: "description",
         content:
-          "Welcome to the MRS Staff Cooperative Society store. Members-only pricing, curated essentials, delivered with care.",
+          "Shop groceries, beverages, electronics, household, agro, pharmacy and personal care at members-only prices. Pay now or buy on credit, with fast delivery and live shopping.",
       },
       { property: "og:title", content: "MRS Staff Coop Store" },
+      {
+        property: "og:description",
+        content:
+          "Quality products, great prices, delivered to you. The official MRS Staff Cooperative Society store.",
+      },
       { property: "og:url", content: "/" },
     ],
     links: [{ rel: "canonical", href: "/" }],
@@ -22,84 +48,340 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+const BENEFITS = [
+  { icon: Wallet, label: "Pay Now", desc: "Card, transfer, USSD" },
+  { icon: CreditCard, label: "Buy On Credit", desc: "Member credit lines" },
+  { icon: Truck, label: "Fast Delivery", desc: "Same-day options" },
+  { icon: Radio, label: "Live Shopping", desc: "Shop while you watch" },
+  { icon: Tag, label: "Best Deals", desc: "Members-only pricing" },
+];
+
 function HomePage() {
   return (
-    <div className="space-y-12 py-6 sm:py-10">
+    <div className="space-y-12 py-4 sm:space-y-16 sm:py-8">
+      {/* Hero */}
       <Container>
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-burgundy p-8 text-primary-foreground shadow-burgundy sm:p-12">
-          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gradient-gold opacity-30 blur-3xl" />
-          <div className="relative max-w-2xl space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-accent-soft" />
-              Members Only
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-burgundy text-primary-foreground shadow-burgundy">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gradient-gold opacity-25 blur-3xl" />
+          <div className="absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-accent-soft/20 blur-3xl" />
+
+          <div className="relative grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:p-14">
+            <div className="space-y-5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] backdrop-blur">
+                <Sparkles className="h-3.5 w-3.5 text-accent-soft" />
+                Members Marketplace
+              </div>
+              <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+                Quality products,
+                <br />
+                <span className="bg-gradient-to-r from-accent-soft to-accent bg-clip-text text-transparent">
+                  great prices,
+                </span>{" "}
+                delivered to you.
+              </h1>
+              <p className="max-w-xl text-sm text-primary-foreground/80 sm:text-base">
+                Shop the cooperative catalog with members-only pricing, flexible
+                payments, and same-day delivery options.
+              </p>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link to="/shop">
+                  <BrandButton variant="gold" size="lg">
+                    <ShoppingBag className="h-4 w-4" />
+                    Shop Now
+                  </BrandButton>
+                </Link>
+                <BrandButton
+                  variant="outline"
+                  size="lg"
+                  className="border-white/30 bg-white/5 text-primary-foreground hover:bg-white/10"
+                >
+                  <PlayCircle className="h-4 w-4" />
+                  Watch Live
+                </BrandButton>
+              </div>
             </div>
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
-              The cooperative store, reimagined for every member.
-            </h1>
-            <p className="text-sm text-primary-foreground/80 sm:text-base">
-              A premium shopping experience built exclusively for MRS Staff
-              Cooperative Society members.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/shop">
-                <BrandButton variant="gold">
-                  <ShoppingBag className="h-4 w-4" />
-                  Start shopping
-                </BrandButton>
-              </Link>
-              <Link to="/account">
-                <BrandButton variant="outline" className="border-white/30 bg-white/5 text-primary-foreground hover:bg-white/10">
-                  My account
-                </BrandButton>
-              </Link>
+
+            {/* Hero visual */}
+            <div className="relative hidden lg:block">
+              <div className="relative mx-auto aspect-square w-full max-w-sm rounded-3xl bg-gradient-to-br from-white/15 to-white/5 p-6 backdrop-blur-sm">
+                <div className="absolute -left-6 top-10 rounded-2xl bg-card p-4 text-foreground shadow-premium">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Flash Deal
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-2xl">🍚</span>
+                    <div>
+                      <div className="text-sm font-semibold">Royal Stallion 50kg</div>
+                      <div className="text-xs text-primary font-bold">{formatPrice(78000)}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -right-4 bottom-10 rounded-2xl bg-card p-4 text-foreground shadow-premium">
+                  <div className="flex items-center gap-2">
+                    <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-gold text-accent-foreground">
+                      <Star className="h-4 w-4 fill-current" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Member Savings</div>
+                      <div className="text-sm font-bold">Up to 35% Off</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid h-full place-items-center">
+                  <span className="text-[10rem] leading-none drop-shadow-2xl">🛍️</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
       </Container>
 
+      {/* Service Benefits */}
       <Container>
-        <SectionHeading
-          eyebrow="Foundation Ready"
-          title="A premium foundation, ready for features"
-          subtitle="The design system, navigation shell, and installable app experience are in place. Catalog, cart, and member accounts come next."
-        />
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <PremiumCard key={feature.title} interactive>
-              <div className="mb-4 inline-grid h-11 w-11 place-items-center rounded-xl bg-gradient-burgundy text-primary-foreground shadow-burgundy">
-                <feature.icon className="h-5 w-5" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+          {BENEFITS.map((b) => (
+            <div
+              key={b.label}
+              className="group rounded-2xl border border-border/60 bg-card p-4 shadow-soft transition hover:-translate-y-0.5 hover:shadow-premium"
+            >
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-burgundy text-primary-foreground shadow-burgundy transition group-hover:scale-110">
+                <b.icon className="h-5 w-5" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-foreground">
-                {feature.title}
-              </h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {feature.description}
-              </p>
-            </PremiumCard>
+              <div className="mt-3 text-sm font-semibold text-foreground">{b.label}</div>
+              <div className="text-xs text-muted-foreground">{b.desc}</div>
+            </div>
           ))}
         </div>
+      </Container>
+
+      {/* Categories */}
+      <Container>
+        <section className="space-y-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                Browse
+              </div>
+              <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                Shop by category
+              </h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-7">
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.slug}
+                to="/shop"
+                className={`group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-gradient-to-br ${c.tint} p-4 text-center transition hover:-translate-y-1 hover:shadow-premium`}
+              >
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-card text-primary shadow-soft transition group-hover:bg-gradient-burgundy group-hover:text-primary-foreground">
+                  <c.icon className="h-6 w-6" />
+                </div>
+                <div className="text-xs font-semibold text-foreground sm:text-sm">
+                  {c.name}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </Container>
+
+      {/* Flash Deals strip */}
+      <Container>
+        <section className="space-y-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-gradient-burgundy p-4 text-primary-foreground sm:p-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-gold text-accent-foreground shadow-gold">
+                <Zap className="h-5 w-5" strokeWidth={2.5} />
+              </div>
+              <div className="min-w-0">
+                <div className="font-display text-lg font-bold sm:text-xl">Flash Deals</div>
+                <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
+                  <Clock className="h-3.5 w-3.5" />
+                  Ends in 04:32:17
+                </div>
+              </div>
+            </div>
+            <Link
+              to="/shop"
+              className="shrink-0 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur transition hover:bg-white/20 sm:text-sm"
+            >
+              See all
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+            {FLASH_DEALS.map((p) => (
+              <FlashDealCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      </Container>
+
+      {/* Featured */}
+      <Container>
+        <ProductRow
+          eyebrow="Handpicked"
+          title="Featured Products"
+          icon={Sparkles}
+          products={FEATURED}
+        />
+      </Container>
+
+      {/* Top Selling */}
+      <Container>
+        <ProductRow
+          eyebrow="Member favorites"
+          title="Top Selling"
+          icon={Star}
+          products={TOP_SELLING}
+          accent
+        />
+      </Container>
+
+      {/* Recently Added */}
+      <Container>
+        <ProductRow
+          eyebrow="Fresh on the shelves"
+          title="Recently Added"
+          icon={Clock}
+          products={RECENTLY_ADDED}
+        />
+      </Container>
+
+      {/* Live Shopping Preview */}
+      <Container>
+        <LiveShoppingPreview />
       </Container>
     </div>
   );
 }
 
-const FEATURES = [
-  {
-    icon: ShieldCheck,
-    title: "Members-only access",
-    description:
-      "Designed exclusively for MRS Staff Cooperative Society members and their households.",
-  },
-  {
-    icon: Sparkles,
-    title: "Premium experience",
-    description:
-      "Luxury retail aesthetics with the speed and reliability of a modern enterprise app.",
-  },
-  {
-    icon: Truck,
-    title: "Installable everywhere",
-    description:
-      "Install on Android, iOS, iPad, Windows, and Mac for a native-feeling experience.",
-  },
-];
+function FlashDealCard({ product }: { product: (typeof FLASH_DEALS)[number] }) {
+  const discount = product.prevPrice
+    ? Math.round(((product.prevPrice - product.price) / product.prevPrice) * 100)
+    : 0;
+  return (
+    <article className="group overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
+      <div className={`relative aspect-square bg-gradient-to-br ${product.gradient} grid place-items-center`}>
+        <span className="text-5xl drop-shadow-sm sm:text-6xl">{product.emoji}</span>
+        {discount > 0 && (
+          <span className="absolute left-3 top-3 rounded-full bg-destructive px-2.5 py-1 text-[10px] font-bold text-destructive-foreground shadow-md">
+            -{discount}%
+          </span>
+        )}
+      </div>
+      <div className="space-y-2 p-3 sm:p-4">
+        <h3 className="line-clamp-2 text-xs font-semibold text-foreground sm:text-sm">
+          {product.name}
+        </h3>
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-sm font-bold text-primary sm:text-base">
+            {formatPrice(product.price)}
+          </span>
+          {product.prevPrice && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatPrice(product.prevPrice)}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          className="flex w-full items-center justify-center gap-1.5 rounded-full bg-primary/10 py-2 text-xs font-semibold text-primary transition hover:bg-gradient-burgundy hover:text-primary-foreground"
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          Add to cart
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function LiveShoppingPreview() {
+  return (
+    <section className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-premium">
+      <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
+        {/* Live stream visual */}
+        <div className="relative aspect-video bg-gradient-to-br from-primary-deep via-primary to-primary-deep lg:aspect-auto">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(244,180,0,0.25),transparent_55%)]" />
+          <div className="absolute left-4 top-4 flex items-center gap-2">
+            <span className="flex items-center gap-1.5 rounded-full bg-destructive px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-destructive-foreground shadow-md">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive-foreground" />
+              Live
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+              <Users className="h-3 w-3" />
+              2,481 watching
+            </span>
+          </div>
+
+          <div className="absolute inset-0 grid place-items-center">
+            <button
+              type="button"
+              aria-label="Watch live"
+              className="group grid h-20 w-20 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25"
+            >
+              <PlayCircle className="h-12 w-12 text-white transition group-hover:scale-110" />
+            </button>
+          </div>
+
+          <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-gold text-accent-foreground font-bold">
+              A
+            </div>
+            <div className="min-w-0 text-white">
+              <div className="truncate text-sm font-semibold">Adaeze's Sunday Pantry Run</div>
+              <div className="truncate text-xs text-white/70">Hosted by MRS Coop Live</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Featured product on live */}
+        <div className="flex flex-col gap-4 p-6 sm:p-8">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            Live Now
+          </div>
+          <h3 className="font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            Shop while you watch
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Tap the featured product to add it to your cart without leaving the stream.
+          </p>
+
+          <div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border/60 bg-muted/50 p-3">
+            <div className="grid h-16 w-16 place-items-center rounded-xl bg-gradient-to-br from-amber-400/30 to-rose-400/20 text-3xl">
+              🍝
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-destructive">
+                Featured · Live Price
+              </div>
+              <div className="truncate text-sm font-semibold text-foreground">
+                Golden Penny Spaghetti 500g
+              </div>
+              <div className="mt-0.5 flex items-baseline gap-2">
+                <span className="font-display text-base font-bold text-primary">
+                  {formatPrice(1100)}
+                </span>
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatPrice(1800)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-auto flex flex-wrap gap-2">
+            <BrandButton variant="primary" size="md">
+              <PlayCircle className="h-4 w-4" />
+              Join live
+            </BrandButton>
+            <BrandButton variant="outline" size="md">
+              <Plus className="h-4 w-4" />
+              Add to cart
+            </BrandButton>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
