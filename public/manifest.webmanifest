@@ -1,0 +1,17 @@
+{
+  "name": "MRS Staff Coop Store",
+  "short_name": "MRS Coop",
+  "description": "Digital commerce platform for MRS Staff Cooperative Society members.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#7A0E14",
+  "background_color": "#F8F8F8",
+  "categories": ["shopping", "business"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,36 @@
+import { Link } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
+import { NAV_ITEMS } from "@/lib/nav";
+
+export function Sidebar() {
+  return (
+    <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 border-r border-border/60 bg-sidebar md:flex md:flex-col">
+      <nav className="flex-1 space-y-1 p-4">
+        <div className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Menu
+        </div>
+        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            activeOptions={{ exact: to === "/" }}
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Icon className="h-5 w-5" />
+            <span>{label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="border-t border-sidebar-border p-4">
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Sign out</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
