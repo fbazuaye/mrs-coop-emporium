@@ -14,6 +14,7 @@ export type Category = {
   name: string;
   icon: LucideIcon;
   tint: string;
+  image?: string;
 };
 
 export const CATEGORIES: Category[] = [
@@ -21,7 +22,7 @@ export const CATEGORIES: Category[] = [
   { slug: "beverages", name: "Beverages", icon: CupSoda, tint: "from-amber-500/15 to-amber-500/5" },
   { slug: "electronics", name: "Electronics", icon: Laptop, tint: "from-sky-500/15 to-sky-500/5" },
   { slug: "household", name: "Household", icon: Home, tint: "from-emerald-500/15 to-emerald-500/5" },
-  { slug: "agro", name: "Agro Products", icon: Sprout, tint: "from-lime-500/15 to-lime-500/5" },
+  { slug: "agro", name: "Agro Products", icon: Sprout, tint: "from-lime-500/15 to-lime-500/5", image: "/__l5e/assets-v1/1ca8c622-a2cb-4329-b885-5754e97d89e3/agro-category.png" },
   { slug: "pharmacy", name: "Pharmacy", icon: Pill, tint: "from-violet-500/15 to-violet-500/5" },
   { slug: "personal-care", name: "Personal Care", icon: Sparkles, tint: "from-pink-500/15 to-pink-500/5" },
 ];
