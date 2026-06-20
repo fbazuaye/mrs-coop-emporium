@@ -104,8 +104,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
       { property: "og:description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
       { name: "twitter:description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/83adccc7-65e5-42ea-848f-20b4af9aef21/id-preview-5798013b--f4c46709-5618-45bf-bf79-154e5f8a0eb2.lovable.app-1781881422211.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/83adccc7-65e5-42ea-848f-20b4af9aef21/id-preview-5798013b--f4c46709-5618-45bf-bf79-154e5f8a0eb2.lovable.app-1781881422211.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1781917469633-Hero_section_image_2.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1781917469633-Hero_section_image_2.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
