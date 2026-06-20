@@ -142,20 +142,28 @@ function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-7">
-            {CATEGORIES.map((c) => (
-              <Link
-                key={c.slug}
-                to="/shop"
-                className={`group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-gradient-to-br ${c.tint} p-4 text-center transition hover:-translate-y-1 hover:shadow-premium`}
-              >
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-card text-primary shadow-soft transition group-hover:bg-gradient-burgundy group-hover:text-primary-foreground">
+          {CATEGORIES.map((c) => (
+            <Link
+              key={c.slug}
+              to="/shop"
+              className={`group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-gradient-to-br ${c.tint} p-4 text-center transition hover:-translate-y-1 hover:shadow-premium`}
+            >
+              <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-card text-primary shadow-soft transition group-hover:bg-gradient-burgundy group-hover:text-primary-foreground">
+                {c.image ? (
+                  <img
+                    src={c.image}
+                    alt={c.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
                   <c.icon className="h-6 w-6" />
-                </div>
-                <div className="text-xs font-semibold text-foreground sm:text-sm">
-                  {c.name}
-                </div>
-              </Link>
-            ))}
+                )}
+              </div>
+              <div className="text-xs font-semibold text-foreground sm:text-sm">
+                {c.name}
+              </div>
+            </Link>
+          ))}
           </div>
         </section>
       </Container>
