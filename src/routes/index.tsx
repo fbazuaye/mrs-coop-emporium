@@ -62,31 +62,25 @@ function HomePage() {
     <div className="space-y-12 py-4 sm:space-y-16 sm:py-8">
       {/* Hero */}
       <Container>
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-burgundy text-primary-foreground shadow-burgundy">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gradient-gold opacity-25 blur-3xl" />
-          <div className="absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-accent-soft/20 blur-3xl" />
-
-          <div className="relative grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:p-14">
-            <div className="space-y-5">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] backdrop-blur">
-                <Sparkles className="h-3.5 w-3.5 text-accent-soft" />
-                Members Marketplace
-              </div>
-              <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+        <section className="relative overflow-hidden rounded-3xl bg-primary-deep text-primary-foreground shadow-burgundy">
+          <div className="relative grid gap-0 p-6 sm:p-10 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:p-0">
+            {/* Left: Text Content */}
+            <div className="space-y-6 py-4 lg:px-14 lg:py-14">
+              <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight sm:text-4xl lg:text-[2.75rem]">
                 Quality products,
                 <br />
-                <span className="bg-gradient-to-r from-accent-soft to-accent bg-clip-text text-transparent">
-                  great prices,
-                </span>{" "}
+                great prices,
+                <br />
                 delivered to you.
               </h1>
-              <p className="max-w-xl text-sm text-primary-foreground/80 sm:text-base">
-                Shop the cooperative catalog with members-only pricing, flexible
-                payments, and same-day delivery options.
+              <p className="max-w-md text-sm leading-relaxed text-primary-foreground/75 sm:text-base">
+                Shop on credit, pay in cash, and delivery.
+                <br />
+                Live shopping and more.
               </p>
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link to="/shop">
-                  <BrandButton variant="gold" size="lg">
+                  <BrandButton variant="gold" size="lg" className="rounded-lg px-7">
                     <ShoppingBag className="h-4 w-4" />
                     Shop Now
                   </BrandButton>
@@ -94,7 +88,7 @@ function HomePage() {
                 <BrandButton
                   variant="outline"
                   size="lg"
-                  className="border-white/30 bg-white/5 text-primary-foreground hover:bg-white/10"
+                  className="rounded-lg border-white/25 bg-black/20 px-7 text-primary-foreground backdrop-blur-sm hover:bg-black/30 hover:text-primary-foreground"
                 >
                   <PlayCircle className="h-4 w-4" />
                   Watch Live
@@ -102,36 +96,15 @@ function HomePage() {
               </div>
             </div>
 
-            {/* Hero visual */}
-            <div className="relative hidden lg:block">
-              <div className="relative mx-auto aspect-square w-full max-w-sm rounded-3xl bg-gradient-to-br from-white/15 to-white/5 p-6 backdrop-blur-sm">
-                <div className="absolute -left-6 top-10 rounded-2xl bg-card p-4 text-foreground shadow-premium">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Flash Deal
-                  </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-2xl">🍚</span>
-                    <div>
-                      <div className="text-sm font-semibold">Royal Stallion 50kg</div>
-                      <div className="text-xs text-primary font-bold">{formatPrice(78000)}</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -right-4 bottom-10 rounded-2xl bg-card p-4 text-foreground shadow-premium">
-                  <div className="flex items-center gap-2">
-                    <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-gold text-accent-foreground">
-                      <Star className="h-4 w-4 fill-current" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">Member Savings</div>
-                      <div className="text-sm font-bold">Up to 35% Off</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid h-full place-items-center">
-                  <span className="text-[10rem] leading-none drop-shadow-2xl">🛍️</span>
-                </div>
-              </div>
+            {/* Right: Hero Image */}
+            <div className="relative hidden lg:flex lg:items-end lg:justify-center">
+              <img
+                src={heroImage}
+                alt="Happy shopper with groceries"
+                className="relative z-10 h-auto w-full max-w-lg object-contain object-bottom"
+                width={512}
+                height={512}
+              />
             </div>
           </div>
         </section>
