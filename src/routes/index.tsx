@@ -141,29 +141,46 @@ function HomePage() {
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-7">
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.slug}
-              to="/shop"
-              className={`group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-gradient-to-br ${c.tint} p-4 text-center transition hover:-translate-y-1 hover:shadow-premium`}
-            >
-              <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-card text-primary shadow-soft transition group-hover:bg-gradient-burgundy group-hover:text-primary-foreground">
-                {c.image ? (
-                  <img
-                    src={c.image}
-                    alt={c.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <c.icon className="h-6 w-6" />
-                )}
-              </div>
-              <div className="text-xs font-semibold text-foreground sm:text-sm">
-                {c.name}
-              </div>
-            </Link>
-          ))}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.slug}
+                to="/shop"
+                className="group relative overflow-hidden rounded-2xl border border-border/60 shadow-soft transition hover:-translate-y-1 hover:shadow-premium"
+              >
+                {/* Card background image or gradient placeholder */}
+                <div className="relative aspect-[4/5] w-full overflow-hidden">
+                  {c.image ? (
+                    <img
+                      src={c.image}
+                      alt={c.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div
+                      className={`flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-br ${c.tint}`}
+                    >
+                      <div className="grid h-16 w-16 place-items-center rounded-2xl bg-card/80 text-primary shadow-soft backdrop-blur-sm">
+                        <c.icon className="h-8 w-8" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bottom gradient overlay for text readability */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
+                  {/* Category name */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-white/70">
+                      {c.image ? "Category" : "Browse"}
+                    </div>
+                    <div className="mt-0.5 text-sm font-bold text-white sm:text-base">
+                      {c.name}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       </Container>
