@@ -14,6 +14,7 @@ export type Category = {
   name: string;
   icon: LucideIcon;
   tint: string;
+  image?: string;
 };
 
 export const CATEGORIES: Category[] = [
