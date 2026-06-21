@@ -1,8 +1,17 @@
-import { Link } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { LogOut, LogIn, LayoutDashboard } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Sidebar() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    void navigate({ to: "/" });
+  };
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-64 shrink-0 border-r border-border/60 bg-sidebar md:flex md:flex-col">
       <nav className="flex-1 space-y-1 p-4">
@@ -20,16 +29,36 @@ export function Sidebar() {
             <span>{label}</span>
           </Link>
         ))}
+        {user && (
+          <Link
+            to="/dashboard"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <LayoutDashboard className="h-5 w-5" />
+            <span>Dashboard</span>
+          </Link>
+        )}
       </nav>
 
       <div className="border-t border-sidebar-border p-4">
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Sign out</span>
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sign out</span>
+          </button>
+        ) : (
+          <Link
+            to="/auth"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <LogIn className="h-5 w-5" />
+            <span>Sign in</span>
+          </Link>
+        )}
       </div>
     </aside>
   );
