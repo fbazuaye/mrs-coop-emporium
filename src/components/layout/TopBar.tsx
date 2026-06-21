@@ -1,9 +1,30 @@
-import { Link } from "@tanstack/react-router";
-import { Search, Bell, User, ShoppingCart } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Search, Bell, User, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function TopBar() {
+  const { user, role, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    void navigate({ to: "/" });
+  };
+
+  const initials = (user?.user_metadata?.full_name as string | undefined)?.[0]?.toUpperCase()
+    ?? user?.email?.[0]?.toUpperCase()
+    ?? "M";
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <Container className="flex h-16 items-center gap-3 sm:gap-4">
@@ -41,13 +62,55 @@ export function TopBar() {
             <Bell className="h-5 w-5" />
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent ring-2 ring-background" />
           </button>
-          <Link
-            to="/account"
-            aria-label="Account"
-            className="grid h-10 w-10 place-items-center rounded-full bg-gradient-burgundy text-primary-foreground transition hover:opacity-90"
-          >
-            <User className="h-5 w-5" />
-          </Link>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  className="grid h-10 w-10 place-items-center rounded-full bg-gradient-burgundy text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                >
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="truncate text-sm font-medium">
+                    {(user.user_metadata?.full_name as string) ?? user.email}
+                  </div>
+                  {role && (
+                    <div className="text-xs font-normal text-muted-foreground capitalize">
+                      {role.replace(/_/g, " ")}
+                    </div>
+                  )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/account" className="flex items-center gap-2">
+                    <User className="h-4 w-4" /> My account
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/auth"
+              aria-label="Sign in"
+              className="grid h-10 w-10 place-items-center rounded-full bg-gradient-burgundy text-primary-foreground transition hover:opacity-90"
+            >
+              <User className="h-5 w-5" />
+            </Link>
+          )}
         </div>
       </Container>
 
