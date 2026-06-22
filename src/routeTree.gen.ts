@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin/live'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as AuthenticatedAdminProductsIndexRouteImport } from './routes/_authenticated/admin/products.index'
 import { Route as AuthenticatedAdminProductsNewRouteImport } from './routes/_authenticated/admin/products.new'
 import { Route as AuthenticatedAdminProductsIdRouteImport } from './routes/_authenticated/admin/products.$id'
@@ -174,6 +175,12 @@ const AuthenticatedAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminProductsIndexRoute =
   AuthenticatedAdminProductsIndexRouteImport.update({
     id: '/products/',
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
   '/live/': typeof LiveIndexRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
   '/live': typeof LiveIndexRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -270,6 +279,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/live/$sessionId': typeof LiveSessionIdRoute
   '/live/': typeof LiveIndexRoute
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/live/$sessionId'
     | '/live/'
+    | '/admin/analytics'
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/live'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/live/$sessionId'
     | '/live'
+    | '/admin/analytics'
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/live'
@@ -361,6 +373,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/live/$sessionId'
     | '/live/'
+    | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/fleet'
     | '/_authenticated/admin/live'
@@ -573,6 +586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/products/': {
       id: '/_authenticated/admin/products/'
       path: '/products'
@@ -598,6 +618,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
@@ -610,6 +631,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
     AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,

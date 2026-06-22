@@ -18,7 +18,7 @@ function AdminLayout() {
     );
   }
 
-  const allowed = role === "store_owner" || role === "super_admin" || role === "fleet_manager";
+  const allowed = role === "store_owner" || role === "super_admin" || role === "fleet_manager" || role === "credit_officer";
   if (!allowed) {
     return (
       <Container>
