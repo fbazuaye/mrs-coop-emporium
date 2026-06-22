@@ -7,6 +7,7 @@ export function Sidebar() {
   const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
   const isAdmin = role === "store_owner" || role === "super_admin";
+  const canReviewCredit = role === "credit_officer" || role === "super_admin" || role === "store_owner";
 
   const handleSignOut = async () => {
     await signOut();
