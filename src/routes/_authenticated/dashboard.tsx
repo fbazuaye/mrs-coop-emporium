@@ -30,7 +30,7 @@ const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards
     cards: [
       { icon: Package, label: "Products", hint: "Add, edit, restock items", to: "/admin/products" },
       { icon: Tags, label: "Categories", hint: "Organise your catalog", to: "/admin/categories" },
-      { icon: ClipboardList, label: "Orders", hint: "Fulfil and track customer orders" },
+      { icon: Wallet, label: "Credit Analytics", hint: "Outstanding, sales, repayments", to: "/credit-admin" },
       { icon: BarChart3, label: "Sales Reports", hint: "Daily, weekly, monthly insights" },
     ],
   },
@@ -47,9 +47,9 @@ const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards
     icon: CreditCard,
     tagline: "Review and approve cooperative credit requests.",
     cards: [
-      { icon: ClipboardList, label: "Credit Applications", hint: "Pending review queue" },
-      { icon: Wallet, label: "Active Credit Lines", hint: "Outstanding balances" },
-      { icon: BarChart3, label: "Repayment Trends", hint: "Risk and recovery metrics" },
+      { icon: ClipboardList, label: "Credit Applications", hint: "Pending review queue", to: "/credit-admin" },
+      { icon: Wallet, label: "Active Credit Lines", hint: "Outstanding balances", to: "/credit-admin" },
+      { icon: BarChart3, label: "Repayment Trends", hint: "Risk and recovery metrics", to: "/credit-admin" },
     ],
   },
   rider: {
@@ -66,7 +66,7 @@ const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards
     tagline: "Member benefits and your activity at a glance.",
     cards: [
       { icon: Package, label: "My Orders", hint: "Track your purchases" },
-      { icon: Wallet, label: "Savings & Credit", hint: "Cooperative balance" },
+      { icon: Wallet, label: "Buy on Credit", hint: "Apply and track repayments", to: "/credit" },
       { icon: Store, label: "Shop the Store", hint: "Member pricing on every item" },
     ],
   },
