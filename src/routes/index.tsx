@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Wallet,
   CreditCard,
@@ -10,7 +11,6 @@ import {
   Sparkles,
   Clock,
   PlayCircle,
-  ShoppingBag,
   Users,
   Plus,
 } from "lucide-react";
@@ -27,6 +27,7 @@ import {
 } from "@/lib/catalog-data";
 import heroAsset from "@/assets/hero-pineapple.png.asset.json";
 import { useCart } from "@/hooks/use-cart";
+import { fetchActiveSessions, type LiveSession } from "@/lib/live";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -273,89 +274,60 @@ function FlashDealCard({ product }: { product: (typeof FLASH_DEALS)[number] }) {
 }
 
 function LiveShoppingPreview() {
+  const [sessions, setSessions] = useState<LiveSession[]>([]);
+  useEffect(() => {
+    fetchActiveSessions().then(setSessions).catch(() => null);
+  }, []);
+
+  if (sessions.length === 0) return null;
+
   return (
-    <section className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-premium">
-      <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
-        {/* Live stream visual */}
-        <div className="relative aspect-video bg-gradient-to-br from-primary-deep via-primary to-primary-deep lg:aspect-auto">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(244,180,0,0.25),transparent_55%)]" />
-          <div className="absolute left-4 top-4 flex items-center gap-2">
-            <span className="flex items-center gap-1.5 rounded-full bg-destructive px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-destructive-foreground shadow-md">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive-foreground" />
-              Live
-            </span>
-            <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
-              <Users className="h-3 w-3" />
-              2,481 watching
-            </span>
-          </div>
-
-          <div className="absolute inset-0 grid place-items-center">
-            <button
-              type="button"
-              aria-label="Watch live"
-              className="group grid h-20 w-20 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25"
-            >
-              <PlayCircle className="h-12 w-12 text-white transition group-hover:scale-110" />
-            </button>
-          </div>
-
-          <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-gold text-accent-foreground font-bold">
-              A
-            </div>
-            <div className="min-w-0 text-white">
-              <div className="truncate text-sm font-semibold">Adaeze's Sunday Pantry Run</div>
-              <div className="truncate text-xs text-white/70">Hosted by MRS Coop Live</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Featured product on live */}
-        <div className="flex flex-col gap-4 p-6 sm:p-8">
+    <section className="space-y-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+        <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            Live Now
+            MRS Live
           </div>
-          <h3 className="font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-            Shop while you watch
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Tap the featured product to add it to your cart without leaving the stream.
-          </p>
-
-          <div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border/60 bg-muted/50 p-3">
-            <div className="grid h-16 w-16 place-items-center rounded-xl bg-gradient-to-br from-amber-400/30 to-rose-400/20 text-3xl">
-              🍝
-            </div>
-            <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-destructive">
-                Featured · Live Price
-              </div>
-              <div className="truncate text-sm font-semibold text-foreground">
-                Golden Penny Spaghetti 500g
-              </div>
-              <div className="mt-0.5 flex items-baseline gap-2">
-                <span className="font-display text-base font-bold text-primary">
-                  {formatPrice(1100)}
-                </span>
-                <span className="text-xs text-muted-foreground line-through">
-                  {formatPrice(1800)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-auto flex flex-wrap gap-2">
-            <BrandButton variant="primary" size="md">
-              <PlayCircle className="h-4 w-4" />
-              Join live
-            </BrandButton>
-            <BrandButton variant="outline" size="md">
-              <Plus className="h-4 w-4" />
-              Add to cart
-            </BrandButton>
-          </div>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            Live now — shop while you watch
+          </h2>
         </div>
+        <Link to="/live" className="shrink-0 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground">
+          See all
+        </Link>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {sessions.slice(0, 3).map((s) => (
+          <Link
+            key={s.id}
+            to="/live/$sessionId"
+            params={{ sessionId: s.id }}
+            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-premium"
+          >
+            <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-deep via-primary to-primary-deep">
+              {s.thumbnail_url ? (
+                <img src={s.thumbnail_url} alt={s.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+              ) : (
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(244,180,0,0.25),transparent_55%)]" />
+              )}
+              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-destructive px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-destructive-foreground">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive-foreground" />
+                Live
+              </span>
+              <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                <Users className="h-3 w-3" />
+                {s.viewer_peak}
+              </span>
+              <div className="absolute inset-0 grid place-items-center opacity-0 transition group-hover:opacity-100">
+                <PlayCircle className="h-14 w-14 text-white drop-shadow-lg" />
+              </div>
+            </div>
+            <div className="p-3">
+              <div className="line-clamp-1 text-sm font-semibold">{s.title}</div>
+              <div className="text-xs text-muted-foreground">{s.host_name ?? "MRS Coop Live"}</div>
+            </div>
+          </Link>
+        ))}
       </div>
     </section>
   );
