@@ -39,6 +39,13 @@ export type Order = {
   out_for_delivery_at: string | null;
   delivered_at: string | null;
   cancelled_at: string | null;
+  rider_accepted_at: string | null;
+  rider_payout: number | null;
+  pod_photo_url: string | null;
+  pod_signature_url: string | null;
+  pod_recipient_name: string | null;
+  pod_notes: string | null;
+  pod_captured_at: string | null;
   created_at: string;
   updated_at: string;
 };

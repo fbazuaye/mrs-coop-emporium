@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag, Truck } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag, Truck, Bike } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -8,6 +8,7 @@ export function Sidebar() {
   const navigate = useNavigate();
   const isAdmin = role === "store_owner" || role === "super_admin";
   const canReviewCredit = role === "credit_officer" || role === "super_admin" || role === "store_owner";
+  const isRider = role === "rider" || role === "fleet_manager" || role === "super_admin";
 
   const handleSignOut = async () => {
     await signOut();
@@ -74,6 +75,15 @@ export function Sidebar() {
           >
             <Truck className="h-5 w-5" />
             <span>Fleet management</span>
+          </Link>
+        )}
+        {isRider && (
+          <Link
+            to="/rider"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Bike className="h-5 w-5" />
+            <span>Rider app</span>
           </Link>
         )}
         {canReviewCredit && (
