@@ -40,6 +40,24 @@ export function Sidebar() {
             <span>Dashboard</span>
           </Link>
         )}
+        {user && (
+          <Link
+            to="/credit"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Banknote className="h-5 w-5" />
+            <span>Buy on credit</span>
+          </Link>
+        )}
+        {canReviewCredit && (
+          <Link
+            to="/credit-admin"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <ClipboardCheck className="h-5 w-5" />
+            <span>Credit admin</span>
+          </Link>
+        )}
         {isAdmin && (
           <Link
             to="/admin/products"
