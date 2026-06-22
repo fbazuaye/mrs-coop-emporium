@@ -183,8 +183,6 @@ export async function removeSessionProduct(id: string) {
 }
 
 export async function bumpViewerPeak(sessionId: string, viewers: number) {
-  // best-effort; ignore errors silently
-  await db.rpc("noop").then(() => null).catch(() => null);
   await db
     .from("live_sessions")
     .update({ viewer_peak: viewers })

@@ -1,38 +1,36 @@
 
-## Problem
+## Why it's slow
 
-- The runtime error `Expected to find a match below the root match in SPA mode` fires when opening `/live/<sessionId>`. Cause: `src/routes/live.tsx` is the listing page, but in TanStack's flat routing it is also the parent layout for `src/routes/live.$sessionId.tsx`. It does not render an `<Outlet />`, so the child route matches but has nowhere to render → crash. You never actually reach the YouTube player.
-- The `toEmbed()` helper in `live.$sessionId.tsx` only recognises `youtube.com/watch?v=ID` and `youtu.be/ID`. Other valid YouTube URL shapes (live, shorts, embed, share links with `si=` / `t=` params) fall through and get loaded as an iframe src that YouTube blocks → blank black player.
+`/live/$sessionId` shows "Loading live session…" until `session` is set in state. Today the page does:
+
+```ts
+Promise.all([fetchSession, fetchSessionProducts, fetchRecentMessages]).then(([s,p,m]) => { setSession(s); setProducts(p); setMessages(m); });
+```
+
+So the player + title + chat shell don't render until the **slowest** of the three resolves. The two slow ones are:
+
+- `fetchSessionProducts` does a deep nested embed `products(...,product_images(...))` — Supabase has to plan a 3-table join for every featured product.
+- `fetchRecentMessages` pulls up to 80 rows with `ORDER created_at DESC`.
+
+If either query is slow (cold cache, lots of messages, lots of products), the whole page is blocked even though the session row itself returns in ~50ms. There is no per-section loading state and no error surfacing — a failure in any query also leaves the page stuck on the loader forever.
+
+`bumpViewerPeak` also calls `db.rpc("noop")` which doesn't exist; it's caught silently but is an unnecessary round trip.
+
+Indexes and RLS are fine — this is purely a frontend data-loading issue.
 
 ## Fix
 
-### 1. Split the listing from the dynamic route
+Decouple the three fetches in `src/routes/live.$sessionId.tsx` so the page renders as soon as the session row arrives.
 
-- Rename `src/routes/live.tsx` → `src/routes/live.index.tsx` (no other code changes — the file already represents the `/live` listing). This removes the implicit parent-layout role.
-- Result: `/live` renders the list, `/live/<sessionId>` renders the session page directly under root, no Outlet needed. Routes are regenerated automatically by the Vite plugin.
+1. **Independent effects** for `fetchSession`, `fetchSessionProducts`, `fetchRecentMessages`. Each sets its own state, surfaces its own error via `toast.error`, and does not block the others.
+2. **Render gate uses only `session`** — exactly as today, but now it resolves on a single fast query (~1 row by id) instead of the slowest of three.
+3. **Per-section skeletons** for products grid and chat list so users see structure immediately ("Loading chat…", "Loading products…") instead of a single blank page.
+4. **Trim chat** initial fetch from 80 → 40 messages. Realtime fills in new ones; older history is rarely scrolled on first paint.
+5. **Drop the dead `db.rpc("noop")` call** inside `bumpViewerPeak` in `src/lib/live.ts` — pure latency with no purpose.
 
-### 2. Broaden YouTube URL parsing in `src/routes/live.$sessionId.tsx`
+No DB changes, no RLS changes, no route changes.
 
-Replace `toEmbed()` so it returns a proper `https://www.youtube.com/embed/<id>?autoplay=1&playsinline=1` URL for these inputs:
+## Files
 
-- `youtube.com/watch?v=ID` (with any extra query params)
-- `youtu.be/ID`
-- `youtube.com/live/ID`
-- `youtube.com/shorts/ID`
-- `youtube.com/embed/ID`
-- URLs ending in `/live` for a channel handle → leave as-is (cannot be embedded by ID); fall back to showing a "Open on YouTube" link so the admin gets a clear signal instead of a blank frame.
-
-Also update the player branch condition so any URL matched by the new YouTube/Vimeo parser uses the iframe path (current condition `/\.m3u8|youtube|youtu\.be|vimeo/.test(...) && /youtube|youtu\.be|vimeo/.test(...)` is redundant and brittle).
-
-### 3. Verify
-
-- Hard-reload `/live`, click the "Test Stream" card → `/live/<id>` loads without the SPA invariant error.
-- Paste a `youtube.com/live/<id>` style URL in admin → player embeds and plays.
-- Console + runtime errors clean.
-
-## Files touched
-
-- rename `src/routes/live.tsx` → `src/routes/live.index.tsx` (content unchanged)
-- edit `src/routes/live.$sessionId.tsx` (rewrite `toEmbed` + simplify the iframe-vs-video condition; add graceful fallback for unembeddable YouTube channel-live URLs)
-
-No DB, RLS, or `live.ts` changes required.
+- `src/routes/live.$sessionId.tsx` — split the single Promise.all into 3 effects; add skeletons; reduce message limit.
+- `src/lib/live.ts` — remove the no-op RPC call from `bumpViewerPeak`.

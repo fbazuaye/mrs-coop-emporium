@@ -43,6 +43,8 @@ function LiveSessionPage() {
   const [session, setSession] = useState<LiveSession | null>(null);
   const [products, setProducts] = useState<LiveProduct[]>([]);
   const [messages, setMessages] = useState<LiveMessage[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(true);
   const [viewers, setViewers] = useState(1);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -50,16 +52,17 @@ function LiveSessionPage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      fetchSession(sessionId),
-      fetchSessionProducts(sessionId),
-      fetchRecentMessages(sessionId),
-    ]).then(([s, p, m]) => {
-      if (!active) return;
-      setSession(s);
-      setProducts(p);
-      setMessages(m);
-    });
+    fetchSession(sessionId)
+      .then((s) => active && setSession(s))
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load session"));
+    fetchSessionProducts(sessionId)
+      .then((p) => active && setProducts(p))
+      .catch(() => null)
+      .finally(() => active && setProductsLoading(false));
+    fetchRecentMessages(sessionId, 40)
+      .then((m) => active && setMessages(m))
+      .catch(() => null)
+      .finally(() => active && setMessagesLoading(false));
     return () => {
       active = false;
     };
@@ -306,7 +309,13 @@ function LiveSessionPage() {
             )}
 
             {/* All featured products */}
-            {products.length > 1 && (
+            {productsLoading ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-muted" />
+                ))}
+              </div>
+            ) : products.length > 1 ? (
               <div className="space-y-2">
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Featured in this stream
@@ -319,16 +328,18 @@ function LiveSessionPage() {
                     ))}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Chat */}
           <div className="flex h-[70vh] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft lg:h-[calc(100vh-9rem)]">
             <div className="border-b border-border/60 p-3 text-sm font-semibold">Live chat</div>
             <div className="flex-1 space-y-2 overflow-y-auto p-3">
-              {messages.length === 0 && (
+              {messagesLoading ? (
+                <p className="text-center text-xs text-muted-foreground">Loading chat…</p>
+              ) : messages.length === 0 ? (
                 <p className="text-center text-xs text-muted-foreground">Be the first to say hi 👋</p>
-              )}
+              ) : null}
               {messages.map((m) => (
                 <ChatBubble key={m.id} m={m} />
               ))}
