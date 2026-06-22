@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as LiveRouteImport } from './routes/live'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LiveSessionIdRouteImport } from './routes/live.$sessionId'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreditAdminRouteImport } from './routes/_authenticated/credit-admin'
@@ -43,6 +45,11 @@ const ShopRoute = ShopRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -73,6 +80,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LiveSessionIdRoute = LiveSessionIdRouteImport.update({
+  id: '/$sessionId',
+  path: '/$sessionId',
+  getParentRoute: () => LiveRoute,
 } as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
@@ -175,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/live': typeof LiveRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -183,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
@@ -201,12 +215,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/live': typeof LiveRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/credit': typeof AuthenticatedCreditRoute
   '/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
@@ -227,6 +243,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/live': typeof LiveRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -235,6 +252,7 @@ export interface FileRoutesById {
   '/_authenticated/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/live/$sessionId': typeof LiveSessionIdRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
@@ -255,6 +273,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/checkout'
+    | '/live'
     | '/reset-password'
     | '/shop'
     | '/admin'
@@ -263,6 +282,7 @@ export interface FileRouteTypes {
     | '/credit-admin'
     | '/dashboard'
     | '/orders'
+    | '/live/$sessionId'
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/orders'
@@ -281,12 +301,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/checkout'
+    | '/live'
     | '/reset-password'
     | '/shop'
     | '/credit'
     | '/credit-admin'
     | '/dashboard'
     | '/orders'
+    | '/live/$sessionId'
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/orders'
@@ -306,6 +328,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/checkout'
+    | '/live'
     | '/reset-password'
     | '/shop'
     | '/_authenticated/admin'
@@ -314,6 +337,7 @@ export interface FileRouteTypes {
     | '/_authenticated/credit-admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/orders'
+    | '/live/$sessionId'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/fleet'
     | '/_authenticated/admin/orders'
@@ -334,6 +358,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  LiveRoute: typeof LiveRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRoute
 }
@@ -352,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -395,6 +427,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/live/$sessionId': {
+      id: '/live/$sessionId'
+      path: '/$sessionId'
+      fullPath: '/live/$sessionId'
+      preLoaderRoute: typeof LiveSessionIdRouteImport
+      parentRoute: typeof LiveRoute
     }
     '/_authenticated/orders': {
       id: '/_authenticated/orders'
@@ -585,6 +624,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface LiveRouteChildren {
+  LiveSessionIdRoute: typeof LiveSessionIdRoute
+}
+
+const LiveRouteChildren: LiveRouteChildren = {
+  LiveSessionIdRoute: LiveSessionIdRoute,
+}
+
+const LiveRouteWithChildren = LiveRoute._addFileChildren(LiveRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -592,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  LiveRoute: LiveRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRoute,
 }
