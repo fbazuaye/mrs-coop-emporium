@@ -101,6 +101,101 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_repayments: {
+        Row: {
+          amount: number
+          created_at: string
+          credit_request_id: string
+          id: string
+          notes: string | null
+          paid_on: string
+          recorded_by: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credit_request_id: string
+          id?: string
+          notes?: string | null
+          paid_on?: string
+          recorded_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credit_request_id?: string
+          id?: string
+          notes?: string | null
+          paid_on?: string
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_repayments_credit_request_id_fkey"
+            columns: ["credit_request_id"]
+            isOneToOne: false
+            referencedRelation: "credit_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_requests: {
+        Row: {
+          amount: number
+          approved_amount: number | null
+          created_at: string
+          employee_id: string
+          id: string
+          member_name: string
+          monthly_repayment: number
+          outstanding_balance: number
+          purpose: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          status: Database["public"]["Enums"]["credit_status"]
+          tenure_months: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          approved_amount?: number | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          member_name: string
+          monthly_repayment: number
+          outstanding_balance?: number
+          purpose?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["credit_status"]
+          tenure_months: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          approved_amount?: number | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          member_name?: string
+          monthly_repayment?: number
+          outstanding_balance?: number
+          purpose?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["credit_status"]
+          tenure_months?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
@@ -277,6 +372,13 @@ export type Database = {
         | "credit_officer"
         | "rider"
         | "cooperative_member"
+      credit_status:
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "repaying"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -411,6 +513,14 @@ export const Constants = {
         "credit_officer",
         "rider",
         "cooperative_member",
+      ],
+      credit_status: [
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "repaying",
+        "completed",
       ],
     },
   },
