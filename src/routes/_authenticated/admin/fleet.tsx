@@ -30,6 +30,8 @@ import {
   updateRider,
   VEHICLE_LABEL,
   assignRiderToOrder,
+  bulkAssignRider,
+  bulkReassignRider,
   type Rider,
   type RiderStatus,
   type VehicleType,
@@ -449,93 +451,185 @@ function AssignmentsTab({
   onAssigned: () => void;
 }) {
   const unassigned = orders.filter(
-    (o) => !o.assigned_rider_id && ["packed", "approved", "processing"].includes(o.status),
+    (o) => !o.assigned_rider_id && ["packed", "approved", "processing", "order_received"].includes(o.status),
   );
-  const available = riders.filter((r) => r.status === "available");
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const assignedActive = orders.filter(
+    (o) => o.assigned_rider_id && ["assigned_rider", "picked_up", "out_for_delivery"].includes(o.status),
+  );
+  const available = riders.filter((r) => r.status === "available" || r.status === "on_delivery");
 
-  const assign = async (orderId: string, riderId: string) => {
-    setBusyId(orderId);
+  const [mode, setMode] = useState<"assign" | "reassign">("assign");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [riderId, setRiderId] = useState<string>("");
+  const [busy, setBusy] = useState(false);
+
+  const list = mode === "assign" ? unassigned : assignedActive;
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const toggleAll = () => {
+    if (selected.size === list.length) setSelected(new Set());
+    else setSelected(new Set(list.map((o) => o.id)));
+  };
+
+  const runBulk = async () => {
+    if (!riderId) return toast.error("Pick a rider");
+    if (selected.size === 0) return toast.error("Select at least one order");
+    setBusy(true);
     try {
-      await assignRiderToOrder(orderId, riderId);
+      const ids = Array.from(selected);
+      if (mode === "assign") {
+        await bulkAssignRider(ids, riderId);
+        toast.success(`Assigned ${ids.length} order${ids.length > 1 ? "s" : ""}`);
+      } else {
+        await bulkReassignRider(ids, riderId);
+        toast.success(`Re-assigned ${ids.length} order${ids.length > 1 ? "s" : ""}`);
+      }
+      setSelected(new Set());
+      setRiderId("");
+      onAssigned();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Bulk action failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const quickAssign = async (orderId: string, rId: string) => {
+    setBusy(true);
+    try {
+      await assignRiderToOrder(orderId, rId);
       toast.success("Rider assigned");
       onAssigned();
     } catch (e: any) {
-      toast.error(e?.message ?? "Assignment failed");
+      toast.error(e?.message ?? "Failed");
     } finally {
-      setBusyId(null);
+      setBusy(false);
     }
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
-        <h3 className="text-sm font-semibold">Ready for assignment ({unassigned.length})</h3>
-        <p className="mt-1 text-xs text-muted-foreground">Packed orders waiting for a rider.</p>
-        <ul className="mt-3 space-y-2">
-          {unassigned.length === 0 && <li className="py-4 text-center text-xs text-muted-foreground">All caught up.</li>}
-          {unassigned.map((o) => (
-            <li key={o.id} className="rounded-xl border border-border/60 bg-background p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-xs font-bold">{o.order_number}</div>
-                  <div className="text-xs text-muted-foreground">{o.full_name} · {o.city}</div>
-                </div>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_TONE[o.status]}`}>
-                  {STATUS_LABELS[o.status]}
-                </span>
-              </div>
-              {available.length === 0 ? (
-                <div className="mt-2 text-xs text-rose-600">No available riders.</div>
-              ) : (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {available.map((r) => (
-                    <button
-                      key={r.id}
-                      disabled={busyId === o.id}
-                      onClick={() => assign(o.id, r.id)}
-                      className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-semibold hover:border-primary hover:bg-muted disabled:opacity-50"
-                    >
-                      <Bike className="h-3 w-3" /> {r.full_name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </li>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex rounded-full border border-border bg-card p-1">
+          {([
+            { v: "assign", l: `Assign (${unassigned.length})` },
+            { v: "reassign", l: `Re-assign (${assignedActive.length})` },
+          ] as const).map((x) => (
+            <button
+              key={x.v}
+              type="button"
+              onClick={() => { setMode(x.v); setSelected(new Set()); }}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                mode === x.v ? "bg-gradient-burgundy text-primary-foreground shadow-burgundy" : "text-foreground hover:bg-muted"
+              }`}
+            >
+              {x.l}
+            </button>
           ))}
-        </ul>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={riderId}
+            onChange={(e) => setRiderId(e.target.value)}
+            className="h-10 rounded-full border border-input bg-background px-4 text-xs font-semibold"
+          >
+            <option value="">Choose rider…</option>
+            {available.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.full_name} · {RIDER_STATUS_LABEL[r.status]} · {VEHICLE_LABEL[r.vehicle_type]}
+              </option>
+            ))}
+          </select>
+          <button
+            disabled={busy || selected.size === 0 || !riderId}
+            onClick={runBulk}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-burgundy px-4 py-2 text-xs font-semibold text-primary-foreground shadow-burgundy disabled:opacity-50"
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            {mode === "assign" ? "Bulk assign" : "Bulk re-assign"} {selected.size > 0 && `(${selected.size})`}
+          </button>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-soft">
-        <h3 className="text-sm font-semibold">Currently on the road</h3>
-        <ul className="mt-3 divide-y divide-border/60">
-          {orders
-            .filter((o) => o.assigned_rider_id && ["assigned_rider", "picked_up", "out_for_delivery"].includes(o.status))
-            .map((o) => {
+      <div className="rounded-2xl border border-border/60 bg-card shadow-soft">
+        <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+          <label className="inline-flex items-center gap-2 text-xs font-semibold">
+            <input
+              type="checkbox"
+              checked={list.length > 0 && selected.size === list.length}
+              onChange={toggleAll}
+              className="h-4 w-4 rounded border-input"
+            />
+            Select all ({list.length})
+          </label>
+          <span className="text-[11px] text-muted-foreground">
+            {mode === "assign" ? "Unassigned orders ready for a rider" : "Active deliveries — change rider mid-flight"}
+          </span>
+        </div>
+        {list.length === 0 ? (
+          <div className="p-8 text-center text-xs text-muted-foreground">
+            {mode === "assign" ? "All caught up." : "No active deliveries to re-assign."}
+          </div>
+        ) : (
+          <ul className="divide-y divide-border/60">
+            {list.map((o) => {
               const r = riders.find((x) => x.id === o.assigned_rider_id);
+              const checked = selected.has(o.id);
               return (
-                <li key={o.id} className="flex items-center justify-between gap-3 py-3">
-                  <div>
-                    <div className="font-mono text-xs font-bold">{o.order_number}</div>
-                    <div className="text-xs text-muted-foreground">{r?.full_name ?? "Unknown rider"} · {o.city}</div>
+                <li key={o.id} className="flex flex-wrap items-center gap-3 p-3 hover:bg-muted/40">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggle(o.id)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs font-bold">{o.order_number}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_TONE[o.status]}`}>
+                        {STATUS_LABELS[o.status]}
+                      </span>
+                      {r && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 ring-1 ring-indigo-200">
+                          <Bike className="h-3 w-3" /> {r.full_name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {o.full_name} · {o.city} · {formatNaira(Number(o.total))}
+                    </div>
                   </div>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_TONE[o.status]}`}>
-                    {STATUS_LABELS[o.status]}
-                  </span>
+                  {mode === "assign" && available.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {available.slice(0, 3).map((r) => (
+                        <button
+                          key={r.id}
+                          disabled={busy}
+                          onClick={() => quickAssign(o.id, r.id)}
+                          className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-semibold hover:border-primary hover:bg-muted disabled:opacity-50"
+                        >
+                          <Bike className="h-3 w-3" /> {r.full_name.split(" ")[0]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </li>
               );
             })}
-          {orders.filter((o) => o.assigned_rider_id && o.status !== "delivered" && o.status !== "cancelled").length === 0 && (
-            <li className="py-4 text-center text-xs text-muted-foreground">No active deliveries.</li>
-          )}
-        </ul>
+          </ul>
+        )}
       </div>
     </div>
   );
 }
 
 function RoutesTab({ orders, riders }: { orders: Order[]; riders: Rider[] }) {
-  // Group active deliveries by city/zone to surface batching opportunities.
   const active = orders.filter((o) => ["assigned_rider", "picked_up", "out_for_delivery", "packed"].includes(o.status));
   const byCity = active.reduce<Record<string, Order[]>>((acc, o) => {
     const k = o.city || "Unspecified";
@@ -544,41 +638,148 @@ function RoutesTab({ orders, riders }: { orders: Order[]; riders: Rider[] }) {
   }, {});
   const groups = Object.entries(byCity).sort((a, b) => b[1].length - a[1].length);
 
+  // Stable schematic layout: each city becomes a cluster node, drops radiate from it.
+  // Hub = warehouse origin (centered top).
+  const W = 800;
+  const H = 460;
+  const hub = { x: W / 2, y: 60 };
+  const cityPositions = useMemo(() => {
+    const n = Math.max(groups.length, 1);
+    return groups.map(([city], i) => {
+      const angle = (Math.PI / (n + 1)) * (i + 1); // 0..π
+      const radius = 280;
+      const x = hub.x + Math.cos(angle - Math.PI / 2) * radius;
+      const y = hub.y + Math.sin(angle - Math.PI / 2) * radius * 0.9 + 40;
+      return { city, x, y };
+    });
+  }, [groups.map(([c, l]) => `${c}:${l.length}`).join("|")]);
+
+  const [focusCity, setFocusCity] = useState<string | null>(null);
+
+  const palette = ["#7c2d3a", "#1d4ed8", "#0f766e", "#b45309", "#9333ea", "#be123c", "#0369a1"];
+
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-xs text-amber-800">
-        <strong>Route optimization</strong> — orders are grouped by drop-off city so dispatchers can batch nearby deliveries onto the same rider.
+      <div className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4 text-xs text-indigo-900">
+        <strong>Route viewer</strong> — schematic map of active deliveries grouped by drop-off zone. Click a cluster to focus its stop sequence. Lines represent a rider's optimized stop order from the warehouse hub.
       </div>
+
       {groups.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center text-sm text-muted-foreground">
           No active deliveries to route.
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {groups.map(([city, list]) => {
-            const zoneRiders = riders.filter((r) => (r.zone ?? "").toLowerCase() === city.toLowerCase());
-            return (
-              <div key={city} className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-2 font-semibold">
-                    <MapPin className="h-4 w-4 text-primary" /> {city}
-                  </div>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold">{list.length} drops</span>
-                </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Suggested riders: {zoneRiders.length > 0 ? zoneRiders.map((r) => r.full_name).join(", ") : "Any available"}
-                </div>
-                <ol className="mt-3 space-y-1 text-xs">
-                  {list.slice(0, 6).map((o, i) => (
-                    <li key={o.id} className="flex justify-between">
-                      <span><span className="font-mono font-bold">{i + 1}.</span> {o.full_name}</span>
-                      <span className="text-muted-foreground">{o.order_number}</span>
-                    </li>
-                  ))}
+        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-slate-50 to-slate-100 p-2 shadow-soft">
+            <svg viewBox={`0 0 ${W} ${H}`} className="h-[460px] w-full">
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
+                </pattern>
+              </defs>
+              <rect width={W} height={H} fill="url(#grid)" />
+
+              {/* Routes from hub to clusters, then through stops */}
+              {cityPositions.map((c, idx) => {
+                const list = byCity[c.city] ?? [];
+                const color = palette[idx % palette.length];
+                const isFocus = focusCity === c.city || focusCity === null;
+                const opacity = isFocus ? 1 : 0.18;
+                // Stop offsets around city node
+                const stops = list.slice(0, 8).map((o, i) => {
+                  const a = (Math.PI * 2 * i) / Math.max(list.length, 1);
+                  return { o, x: c.x + Math.cos(a) * 40, y: c.y + Math.sin(a) * 40 };
+                });
+                return (
+                  <g key={c.city} opacity={opacity}>
+                    <line x1={hub.x} y1={hub.y} x2={c.x} y2={c.y} stroke={color} strokeWidth={2} strokeDasharray="4 4" />
+                    {stops.map((s, i) => {
+                      const prev = i === 0 ? c : stops[i - 1];
+                      return (
+                        <line key={s.o.id} x1={prev.x} y1={prev.y} x2={s.x} y2={s.y} stroke={color} strokeWidth={1.5} />
+                      );
+                    })}
+                    {stops.map((s, i) => (
+                      <g key={s.o.id}>
+                        <circle cx={s.x} cy={s.y} r={7} fill="#fff" stroke={color} strokeWidth={2} />
+                        <text x={s.x} y={s.y + 3} fontSize="9" textAnchor="middle" fontWeight="700" fill={color}>
+                          {i + 1}
+                        </text>
+                      </g>
+                    ))}
+                    <g onClick={() => setFocusCity(focusCity === c.city ? null : c.city)} className="cursor-pointer">
+                      <circle cx={c.x} cy={c.y} r={20} fill={color} />
+                      <text x={c.x} y={c.y + 4} fontSize="11" textAnchor="middle" fontWeight="800" fill="#fff">
+                        {list.length}
+                      </text>
+                      <text x={c.x} y={c.y + 38} fontSize="11" textAnchor="middle" fontWeight="700" fill="#0f172a">
+                        {c.city}
+                      </text>
+                    </g>
+                  </g>
+                );
+              })}
+
+              {/* Hub */}
+              <g>
+                <circle cx={hub.x} cy={hub.y} r={24} fill="#0f172a" />
+                <text x={hub.x} y={hub.y + 4} fontSize="11" textAnchor="middle" fontWeight="800" fill="#fff">
+                  HUB
+                </text>
+                <text x={hub.x} y={hub.y - 32} fontSize="10" textAnchor="middle" fontWeight="700" fill="#475569">
+                  MRS Warehouse
+                </text>
+              </g>
+            </svg>
+          </div>
+
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+              <h3 className="text-sm font-semibold">Zone legend</h3>
+              <ul className="mt-2 space-y-1.5 text-xs">
+                {cityPositions.map((c, i) => (
+                  <li key={c.city}>
+                    <button
+                      onClick={() => setFocusCity(focusCity === c.city ? null : c.city)}
+                      className={`flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left transition ${
+                        focusCity === c.city ? "bg-muted" : "hover:bg-muted/60"
+                      }`}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full" style={{ background: palette[i % palette.length] }} />
+                        <span className="font-semibold">{c.city}</span>
+                      </span>
+                      <span className="text-muted-foreground">{(byCity[c.city] ?? []).length} drops</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {focusCity && (
+              <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+                <h3 className="text-sm font-semibold inline-flex items-center gap-2">
+                  <RouteIcon className="h-4 w-4 text-primary" /> {focusCity} — stop sequence
+                </h3>
+                <ol className="mt-2 space-y-1.5 text-xs">
+                  {(byCity[focusCity] ?? []).slice(0, 10).map((o, i) => {
+                    const r = riders.find((x) => x.id === o.assigned_rider_id);
+                    return (
+                      <li key={o.id} className="flex items-center justify-between rounded-lg bg-muted/40 px-2 py-1.5">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="grid h-5 w-5 place-items-center rounded-full bg-gradient-burgundy text-[10px] font-bold text-primary-foreground">
+                            {i + 1}
+                          </span>
+                          <span className="font-semibold">{o.full_name}</span>
+                        </span>
+                        <span className="text-muted-foreground">{r?.full_name ?? "Unassigned"}</span>
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
       )}
     </div>
