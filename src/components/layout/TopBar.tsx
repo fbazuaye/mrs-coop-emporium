@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Bell, User, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
+import { Search, User, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
 import { useAuth } from "@/hooks/use-auth";
@@ -58,14 +59,7 @@ export function TopBar() {
               </span>
             )}
           </Link>
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative grid h-10 w-10 place-items-center rounded-full text-foreground transition hover:bg-muted"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent ring-2 ring-background" />
-          </button>
+          <NotificationBell />
 
           {user ? (
             <DropdownMenu>
