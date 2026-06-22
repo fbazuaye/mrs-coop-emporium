@@ -854,6 +854,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_delivery_media: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      can_manage_store_media: { Args: { _user_id: string }; Returns: boolean }
+      can_read_delivery_proof_object: {
+        Args: { _object_name: string; _user_id: string }
+        Returns: boolean
+      }
+      can_write_delivery_proof_object: {
+        Args: { _object_name: string; _user_id: string }
+        Returns: boolean
+      }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
