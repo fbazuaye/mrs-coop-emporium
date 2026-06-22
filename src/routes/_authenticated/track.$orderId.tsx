@@ -504,13 +504,24 @@ function TrackingPage() {
   );
 }
 
-function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function KPI({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3" title={hint}>
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {icon} {label}
       </div>
       <div className="mt-1 text-base font-semibold text-foreground">{value}</div>
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground">{hint}</div>}
     </div>
   );
 }
