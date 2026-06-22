@@ -18,6 +18,8 @@ import { NotificationsProvider } from "@/hooks/use-notifications";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/layout/AppShell";
 import { BrandButton } from "@/components/brand/BrandButton";
+import { SplashScreen } from "@/components/pwa/SplashScreen";
+import { registerPWA } from "@/lib/pwa-register";
 
 function NotFoundComponent() {
   return (
@@ -154,6 +156,7 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    void registerPWA();
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -167,6 +170,7 @@ function RootComponent() {
       <AuthProvider>
         <NotificationsProvider>
           <CartProvider>
+            <SplashScreen />
             <AppShell>
               <Outlet />
             </AppShell>
