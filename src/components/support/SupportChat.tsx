@@ -121,9 +121,14 @@ export function SupportChat() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open AI Support"
-          className="fixed bottom-24 right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-gradient-burgundy text-primary-foreground shadow-premium transition hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
+          className="fixed bottom-24 right-4 z-50 flex flex-col items-center gap-1 transition hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
         >
-          <MessageCircle className="h-6 w-6" />
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-burgundy text-primary-foreground shadow-premium">
+            <MessageCircle className="h-6 w-6" />
+          </span>
+          <span className="rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-foreground shadow-soft backdrop-blur">
+            Ask AI
+          </span>
         </button>
       )}
 
