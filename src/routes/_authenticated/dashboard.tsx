@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Shield, Store, Truck, CreditCard, Bike, Users, Package, BarChart3, Wallet, ClipboardList,
+  Shield, Store, Truck, CreditCard, Bike, Users, Package, BarChart3, Wallet, ClipboardList, Tags,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-type Card = { icon: typeof Shield; label: string; hint: string };
+type Card = { icon: typeof Shield; label: string; hint: string; to?: string };
 
 const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards: Card[] }> = {
   super_admin: {
