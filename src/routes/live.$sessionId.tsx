@@ -309,7 +309,13 @@ function LiveSessionPage() {
             )}
 
             {/* All featured products */}
-            {products.length > 1 && (
+            {productsLoading ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-muted" />
+                ))}
+              </div>
+            ) : products.length > 1 ? (
               <div className="space-y-2">
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Featured in this stream
@@ -322,7 +328,7 @@ function LiveSessionPage() {
                     ))}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Chat */}
