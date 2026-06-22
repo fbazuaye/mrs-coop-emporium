@@ -51,7 +51,7 @@ export async function fetchRiders(): Promise<Rider[]> {
   return (data ?? []) as Rider[];
 }
 
-export async function createRider(input: Omit<Rider, "id" | "created_at" | "updated_at" | "rating" | "total_deliveries"> & { rating?: number }): Promise<Rider> {
+export async function createRider(input: Omit<Rider, "id" | "created_at" | "updated_at" | "rating" | "total_deliveries" | "current_lat" | "current_lng" | "location_updated_at"> & { rating?: number }): Promise<Rider> {
   const { data, error } = await db.from("riders").insert(input).select("*").single();
   if (error) throw error;
   return data as Rider;
