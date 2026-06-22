@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag, Truck } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -65,6 +65,15 @@ export function Sidebar() {
           >
             <Package className="h-5 w-5" />
             <span>Order management</span>
+          </Link>
+        )}
+        {(isAdmin || role === "fleet_manager") && (
+          <Link
+            to="/admin/fleet"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Truck className="h-5 w-5" />
+            <span>Fleet management</span>
           </Link>
         )}
         {canReviewCredit && (
