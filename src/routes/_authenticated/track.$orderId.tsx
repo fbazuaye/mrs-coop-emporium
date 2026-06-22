@@ -359,7 +359,12 @@ function TrackingPage() {
             className="h-[460px] w-full overflow-hidden rounded-2xl border border-border"
           />
           <div className="grid grid-cols-3 gap-3 text-sm">
-            <KPI icon={<Clock className="h-4 w-4" />} label="ETA" value={routing ? "…" : eta} />
+            <KPI
+              icon={<Clock className="h-4 w-4" />}
+              label={etaSource === "fallback" ? "ETA (est.)" : "ETA"}
+              value={routing ? "…" : eta}
+              hint={etaSource === "fallback" ? "Live routing unavailable — distance-based estimate" : undefined}
+            />
             <KPI icon={<Navigation className="h-4 w-4" />} label="Distance" value={dist} />
             <KPI
               icon={<Truck className="h-4 w-4" />}
