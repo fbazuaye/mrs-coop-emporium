@@ -103,3 +103,48 @@ export function formatDistance(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 }
+
+/** Great-circle distance between two coordinates, in meters. */
+export function haversineMeters(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Distance-based ETA fallback when the Routes API is unavailable or returns a
+ * low-confidence result. Inflates straight-line distance by 1.3 to approximate
+ * road travel and assumes an urban two-wheeler average of 22 km/h plus a small
+ * handover buffer.
+ */
+export function estimateFallbackEta(
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number },
+): { distanceMeters: number; durationSeconds: number; confidence: "low" } {
+  const straight = haversineMeters(origin, destination);
+  const distanceMeters = Math.round(straight * 1.3);
+  const avgSpeedMps = (22 * 1000) / 3600; // 22 km/h
+  const durationSeconds = Math.round(distanceMeters / avgSpeedMps) + 90;
+  return { distanceMeters, durationSeconds, confidence: "low" };
+}
+
+/** Flag Routes API results we should not trust. */
+export function isLowConfidenceRoute(r: {
+  distanceMeters: number;
+  durationSeconds: number;
+}): boolean {
+  if (!r) return true;
+  if (r.durationSeconds <= 0 || r.distanceMeters <= 0) return true;
+  const speedKph = r.distanceMeters / 1000 / (r.durationSeconds / 3600);
+  return speedKph > 90; // implausibly fast → likely bad data
+}
