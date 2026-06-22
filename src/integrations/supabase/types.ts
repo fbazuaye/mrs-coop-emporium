@@ -196,6 +196,143 @@ export type Database = {
         }
         Relationships: []
       }
+      live_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["live_message_kind"]
+          metadata: Json | null
+          session_id: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["live_message_kind"]
+          metadata?: Json | null
+          session_id: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["live_message_kind"]
+          metadata?: Json | null
+          session_id?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_session_products: {
+        Row: {
+          created_at: string
+          id: string
+          is_spotlight: boolean
+          live_price: number | null
+          product_id: string
+          session_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_spotlight?: boolean
+          live_price?: number | null
+          product_id: string
+          session_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_spotlight?: boolean
+          live_price?: number | null
+          product_id?: string
+          session_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_session_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_session_products_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          ended_at: string | null
+          host_id: string | null
+          host_name: string | null
+          id: string
+          scheduled_for: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["live_status"]
+          stream_url: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          viewer_peak: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          host_id?: string | null
+          host_name?: string | null
+          id?: string
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["live_status"]
+          stream_url?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          viewer_peak?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          host_id?: string | null
+          host_name?: string | null
+          id?: string
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["live_status"]
+          stream_url?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          viewer_peak?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -681,6 +818,8 @@ export type Database = {
         | "rejected"
         | "repaying"
         | "completed"
+      live_message_kind: "chat" | "system" | "purchase"
+      live_status: "scheduled" | "live" | "ended"
       order_payment_method: "pay_now" | "credit"
       order_status:
         | "order_received"
@@ -837,6 +976,8 @@ export const Constants = {
         "repaying",
         "completed",
       ],
+      live_message_kind: ["chat", "system", "purchase"],
+      live_status: ["scheduled", "live", "ended"],
       order_payment_method: ["pay_now", "credit"],
       order_status: [
         "order_received",
