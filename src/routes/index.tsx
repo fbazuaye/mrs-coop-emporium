@@ -26,6 +26,7 @@ import {
   formatPrice,
 } from "@/lib/catalog-data";
 import heroAsset from "@/assets/hero-pineapple.png.asset.json";
+import { useCart } from "@/hooks/use-cart";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -220,6 +221,7 @@ function HomePage() {
 }
 
 function FlashDealCard({ product }: { product: (typeof FLASH_DEALS)[number] }) {
+  const { add } = useCart();
   const discount = product.prevPrice
     ? Math.round(((product.prevPrice - product.price) / product.prevPrice) * 100)
     : 0;
@@ -249,6 +251,17 @@ function FlashDealCard({ product }: { product: (typeof FLASH_DEALS)[number] }) {
         </div>
         <button
           type="button"
+          onClick={() =>
+            add({
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              prevPrice: product.prevPrice,
+              emoji: product.emoji,
+              gradient: product.gradient,
+              category: product.category,
+            })
+          }
           className="flex w-full items-center justify-center gap-1.5 rounded-full bg-primary/10 py-2 text-xs font-semibold text-primary transition hover:bg-gradient-burgundy hover:text-primary-foreground"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
