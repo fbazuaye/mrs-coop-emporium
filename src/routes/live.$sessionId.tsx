@@ -33,10 +33,11 @@ export const Route = createFileRoute("/live/$sessionId")({
 
 function LiveSessionPage() {
   const { sessionId } = useParams({ from: "/live/$sessionId" });
-  const { user, profile } = useAuth() as {
-    user: { id: string; email?: string | null } | null;
-    profile?: { full_name?: string | null } | null;
-  };
+  const { user } = useAuth();
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "Member";
   const { add } = useCart();
 
   const [session, setSession] = useState<LiveSession | null>(null);
