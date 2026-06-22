@@ -24,6 +24,8 @@ import {
   decodePolyline,
   formatEta,
   formatDistance,
+  estimateFallbackEta,
+  isLowConfidenceRoute,
   type RiderPing,
 } from "@/lib/tracking";
 import { computeRoute, type RouteResult } from "@/lib/maps.functions";
@@ -59,10 +61,12 @@ function TrackingPage() {
   const [rider, setRider] = useState<Rider | null>(null);
   const [pings, setPings] = useState<RiderPing[]>([]);
   const [route, setRoute] = useState<RouteResult | null>(null);
+  const [etaSource, setEtaSource] = useState<"routes" | "fallback" | null>(null);
   const [loading, setLoading] = useState(true);
   const [routing, setRouting] = useState(false);
   const [sharing, setSharing] = useState(false);
   const watchIdRef = useRef<number | null>(null);
+  const lastStatusRef = useRef<string | null>(null);
 
   const isStaff =
     role === "store_owner" || role === "super_admin" || role === "fleet_manager";
@@ -158,7 +162,9 @@ function TrackingPage() {
     [pings],
   );
 
-  // Compute route whenever rider or destination meaningfully moves
+  // Compute route whenever rider or destination meaningfully moves.
+  // Falls back to a haversine-based estimate if the Routes API fails or
+  // returns a low-confidence result.
   useEffect(() => {
     if (!destPos) return;
     const origin = riderPos ?? HUB;
@@ -166,10 +172,22 @@ function TrackingPage() {
     setRouting(true);
     callComputeRoute({ data: { origin, destination: destPos, travelMode: "TWO_WHEELER" } })
       .then((r) => {
-        if (!cancelled) setRoute(r);
+        if (cancelled) return;
+        if (isLowConfidenceRoute(r)) {
+          const fb = estimateFallbackEta(origin, destPos);
+          setRoute({ polyline: "", distanceMeters: fb.distanceMeters, durationSeconds: fb.durationSeconds });
+          setEtaSource("fallback");
+        } else {
+          setRoute(r);
+          setEtaSource("routes");
+        }
       })
       .catch((e) => {
-        if (!cancelled) console.error("compute route", e);
+        if (cancelled) return;
+        console.warn("Routes API failed, using fallback ETA", e);
+        const fb = estimateFallbackEta(origin, destPos);
+        setRoute({ polyline: "", distanceMeters: fb.distanceMeters, durationSeconds: fb.durationSeconds });
+        setEtaSource("fallback");
       })
       .finally(() => {
         if (!cancelled) setRouting(false);
@@ -223,6 +241,52 @@ function TrackingPage() {
   };
   useEffect(() => () => stopSharing(), []);
 
+  // Browser push notifications: ask once on mount, then fire when the
+  // order status changes (works for customers, riders, fleet, store owners).
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">(
+    typeof window !== "undefined" && "Notification" in window ? Notification.permission : "unsupported",
+  );
+  const requestNotifications = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    try {
+      const p = await Notification.requestPermission();
+      setNotifPermission(p);
+      if (p === "granted") toast.success("Delivery alerts enabled");
+    } catch {
+      /* ignore */
+    }
+  };
+  useEffect(() => {
+    if (!order) return;
+    const prev = lastStatusRef.current;
+    if (prev && prev !== order.status) {
+      const label = STATUS_LABELS[order.status] ?? order.status;
+      const body = `Order ${order.order_number} • ${label}`;
+      toast.info(body);
+      if (
+        typeof window !== "undefined" &&
+        "Notification" in window &&
+        Notification.permission === "granted" &&
+        document.visibilityState !== "visible"
+      ) {
+        try {
+          const n = new Notification("Delivery update", {
+            body,
+            tag: `order-${order.id}`,
+            icon: "/favicon.ico",
+          });
+          n.onclick = () => {
+            window.focus();
+            n.close();
+          };
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    lastStatusRef.current = order.status;
+  }, [order?.status, order?.order_number, order?.id]);
+
   const advance = async () => {
     if (!order) return;
     const next = nextStatus(order.status);
@@ -268,11 +332,26 @@ function TrackingPage() {
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[order.status]}`}
-        >
-          {STATUS_LABELS[order.status]}
-        </span>
+        <div className="flex items-center gap-2">
+          {notifPermission === "default" && (
+            <button
+              onClick={requestNotifications}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted"
+            >
+              Enable alerts
+            </button>
+          )}
+          {notifPermission === "granted" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+              Alerts on
+            </span>
+          )}
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[order.status]}`}
+          >
+            {STATUS_LABELS[order.status]}
+          </span>
+        </div>
       </div>
 
       <header className="flex flex-col gap-1">
@@ -295,7 +374,12 @@ function TrackingPage() {
             className="h-[460px] w-full overflow-hidden rounded-2xl border border-border"
           />
           <div className="grid grid-cols-3 gap-3 text-sm">
-            <KPI icon={<Clock className="h-4 w-4" />} label="ETA" value={routing ? "…" : eta} />
+            <KPI
+              icon={<Clock className="h-4 w-4" />}
+              label={etaSource === "fallback" ? "ETA (est.)" : "ETA"}
+              value={routing ? "…" : eta}
+              hint={etaSource === "fallback" ? "Live routing unavailable — distance-based estimate" : undefined}
+            />
             <KPI icon={<Navigation className="h-4 w-4" />} label="Distance" value={dist} />
             <KPI
               icon={<Truck className="h-4 w-4" />}
@@ -435,13 +519,24 @@ function TrackingPage() {
   );
 }
 
-function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function KPI({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3">
+    <div className="rounded-xl border border-border bg-card p-3" title={hint}>
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {icon} {label}
       </div>
       <div className="mt-1 text-base font-semibold text-foreground">{value}</div>
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground">{hint}</div>}
     </div>
   );
 }
