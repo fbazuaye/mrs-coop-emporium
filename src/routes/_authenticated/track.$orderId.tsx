@@ -24,6 +24,8 @@ import {
   decodePolyline,
   formatEta,
   formatDistance,
+  estimateFallbackEta,
+  isLowConfidenceRoute,
   type RiderPing,
 } from "@/lib/tracking";
 import { computeRoute, type RouteResult } from "@/lib/maps.functions";
