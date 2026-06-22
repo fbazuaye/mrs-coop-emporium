@@ -232,6 +232,140 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          emoji: string | null
+          gradient: string | null
+          id: string
+          image: string | null
+          name: string
+          order_id: string
+          price: number
+          product_id: string | null
+          quantity: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          order_id: string
+          price: number
+          product_id?: string | null
+          quantity: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          order_id?: string
+          price?: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          approved_at: string | null
+          assigned_at: string | null
+          assigned_rider_id: string | null
+          cancelled_at: string | null
+          city: string
+          created_at: string
+          delivered_at: string | null
+          delivery_fee: number
+          full_name: string
+          id: string
+          notes: string | null
+          order_number: string
+          out_for_delivery_at: string | null
+          packed_at: string | null
+          payment_method: Database["public"]["Enums"]["order_payment_method"]
+          phone: string
+          picked_up_at: string | null
+          processed_at: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          status_history: Json
+          subtotal: number
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          approved_at?: string | null
+          assigned_at?: string | null
+          assigned_rider_id?: string | null
+          cancelled_at?: string | null
+          city: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_fee?: number
+          full_name: string
+          id?: string
+          notes?: string | null
+          order_number: string
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          payment_method?: Database["public"]["Enums"]["order_payment_method"]
+          phone: string
+          picked_up_at?: string | null
+          processed_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          status_history?: Json
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          approved_at?: string | null
+          assigned_at?: string | null
+          assigned_rider_id?: string | null
+          cancelled_at?: string | null
+          city?: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_fee?: number
+          full_name?: string
+          id?: string
+          notes?: string | null
+          order_number?: string
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          payment_method?: Database["public"]["Enums"]["order_payment_method"]
+          phone?: string
+          picked_up_at?: string | null
+          processed_at?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          status_history?: Json
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
@@ -415,6 +549,17 @@ export type Database = {
         | "rejected"
         | "repaying"
         | "completed"
+      order_payment_method: "pay_now" | "credit"
+      order_status:
+        | "order_received"
+        | "approved"
+        | "processing"
+        | "packed"
+        | "assigned_rider"
+        | "picked_up"
+        | "out_for_delivery"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -557,6 +702,18 @@ export const Constants = {
         "rejected",
         "repaying",
         "completed",
+      ],
+      order_payment_method: ["pay_now", "credit"],
+      order_status: [
+        "order_received",
+        "approved",
+        "processing",
+        "packed",
+        "assigned_rider",
+        "picked_up",
+        "out_for_delivery",
+        "delivered",
+        "cancelled",
       ],
     },
   },
