@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag, Truck, Bike } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck, Package, ShoppingBag, Truck, Bike, Radio } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -32,6 +32,13 @@ export function Sidebar() {
             <span>{label}</span>
           </Link>
         ))}
+        <Link
+          to="/live"
+          className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+        >
+          <Radio className="h-5 w-5" />
+          <span>MRS Live</span>
+        </Link>
         {user && (
           <Link
             to="/dashboard"
@@ -102,6 +109,15 @@ export function Sidebar() {
           >
             <Settings2 className="h-5 w-5" />
             <span>Admin</span>
+          </Link>
+        )}
+        {isAdmin && (
+          <Link
+            to="/admin/live"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Radio className="h-5 w-5" />
+            <span>Live sessions</span>
           </Link>
         )}
       </nav>
