@@ -15,7 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
-import { BrandButton } from "@/components/brand/BrandButton";
+
 import { ProductRow } from "@/components/catalog/ProductRow";
 import {
   CATEGORIES,
