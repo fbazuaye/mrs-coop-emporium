@@ -25,7 +25,7 @@ import {
   TOP_SELLING,
   formatPrice,
 } from "@/lib/catalog-data";
-import heroImage from "../../public/hero-shopping.png";
+import heroAsset from "@/assets/hero-pineapple.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
