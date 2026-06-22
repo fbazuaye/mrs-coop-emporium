@@ -71,3 +71,22 @@ export async function assignRiderToOrder(orderId: string, riderId: string): Prom
     .eq("id", orderId);
   if (error) throw error;
 }
+
+export async function bulkAssignRider(orderIds: string[], riderId: string): Promise<void> {
+  if (orderIds.length === 0) return;
+  const { error } = await db
+    .from("orders")
+    .update({ assigned_rider_id: riderId, status: "assigned_rider" })
+    .in("id", orderIds);
+  if (error) throw error;
+}
+
+export async function bulkReassignRider(orderIds: string[], riderId: string): Promise<void> {
+  if (orderIds.length === 0) return;
+  // Re-assignment keeps current status if already past assignment; otherwise sets to assigned_rider.
+  const { error } = await db
+    .from("orders")
+    .update({ assigned_rider_id: riderId })
+    .in("id", orderIds);
+  if (error) throw error;
+}
