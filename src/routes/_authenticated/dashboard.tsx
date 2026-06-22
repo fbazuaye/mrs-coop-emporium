@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Shield, Store, Truck, CreditCard, Bike, Users, Package, BarChart3, Wallet, ClipboardList,
+  Shield, Store, Truck, CreditCard, Bike, Users, Package, BarChart3, Wallet, ClipboardList, Tags,
 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-type Card = { icon: typeof Shield; label: string; hint: string };
+type Card = { icon: typeof Shield; label: string; hint: string; to?: string };
 
 const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards: Card[] }> = {
   super_admin: {
@@ -28,7 +28,8 @@ const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards
     icon: Store,
     tagline: "Manage your storefront and inventory.",
     cards: [
-      { icon: Package, label: "Products", hint: "Add, edit, restock items" },
+      { icon: Package, label: "Products", hint: "Add, edit, restock items", to: "/admin/products" },
+      { icon: Tags, label: "Categories", hint: "Organise your catalog", to: "/admin/categories" },
       { icon: ClipboardList, label: "Orders", hint: "Fulfil and track customer orders" },
       { icon: BarChart3, label: "Sales Reports", hint: "Daily, weekly, monthly insights" },
     ],
@@ -104,15 +105,23 @@ function DashboardPage() {
         <SectionHeading eyebrow="Quick actions" title="Your workspace" />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cfg.cards.map((c) => (
-            <div key={c.label} className="group rounded-2xl border border-border/60 bg-card p-5 transition hover:-translate-y-0.5 hover:shadow-premium">
-              <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                <c.icon className="h-5 w-5" />
-              </div>
-              <div className="font-display text-base font-semibold text-foreground">{c.label}</div>
-              <div className="mt-1 text-sm text-muted-foreground">{c.hint}</div>
-            </div>
-          ))}
+          {cfg.cards.map((c) => {
+            const inner = (
+              <>
+                <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <c.icon className="h-5 w-5" />
+                </div>
+                <div className="font-display text-base font-semibold text-foreground">{c.label}</div>
+                <div className="mt-1 text-sm text-muted-foreground">{c.hint}</div>
+              </>
+            );
+            const cls = "group block rounded-2xl border border-border/60 bg-card p-5 transition hover:-translate-y-0.5 hover:shadow-premium";
+            return c.to ? (
+              <Link key={c.label} to={c.to} className={cls}>{inner}</Link>
+            ) : (
+              <div key={c.label} className={cls}>{inner}</div>
+            );
+          })}
           <Link to="/" className="rounded-2xl border border-dashed border-border bg-muted/30 p-5 text-sm text-muted-foreground transition hover:bg-muted/60">
             ← Back to the storefront
           </Link>

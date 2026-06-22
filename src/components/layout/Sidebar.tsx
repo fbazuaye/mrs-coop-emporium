@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2 } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Sidebar() {
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = role === "store_owner" || role === "super_admin";
 
   const handleSignOut = async () => {
     await signOut();
@@ -36,6 +37,15 @@ export function Sidebar() {
           >
             <LayoutDashboard className="h-5 w-5" />
             <span>Dashboard</span>
+          </Link>
+        )}
+        {isAdmin && (
+          <Link
+            to="/admin/products"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Settings2 className="h-5 w-5" />
+            <span>Admin</span>
           </Link>
         )}
       </nav>
