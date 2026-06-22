@@ -166,3 +166,12 @@ export async function deleteCategory(id: string) {
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) throw error;
 }
+
+export function formatStock(p: Pick<ProductRow, "stock_quantity" | "low_stock_threshold">): {
+  label: string;
+  tone: "ok" | "warn" | "danger";
+} {
+  if (p.stock_quantity === 0) return { label: "Out of stock", tone: "danger" };
+  if (p.stock_quantity <= p.low_stock_threshold) return { label: `Low · ${p.stock_quantity}`, tone: "warn" };
+  return { label: `${p.stock_quantity} in stock`, tone: "ok" };
+}
