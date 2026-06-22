@@ -3,6 +3,7 @@ import { Search, Bell, User, ShoppingCart, LogOut, LayoutDashboard } from "lucid
 import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
 import { useAuth } from "@/hooks/use-auth";
+import { useCart } from "@/hooks/use-cart";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 
 export function TopBar() {
   const { user, role, signOut } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -50,9 +52,11 @@ export function TopBar() {
             className="relative grid h-10 w-10 place-items-center rounded-full text-foreground transition hover:bg-muted"
           >
             <ShoppingCart className="h-5 w-5" />
-            <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-gradient-gold px-1 text-[10px] font-bold text-accent-foreground">
-              3
-            </span>
+            {count > 0 && (
+              <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-gradient-gold px-1 text-[10px] font-bold text-accent-foreground">
+                {count}
+              </span>
+            )}
           </Link>
           <button
             type="button"
