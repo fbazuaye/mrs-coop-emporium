@@ -203,6 +203,12 @@ export async function uploadLiveThumbnail(file: File): Promise<string> {
     .from("live-thumbnails")
     .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
   if (error) throw error;
-  const { data } = supabase.storage.from("live-thumbnails").getPublicUrl(path);
-  return data.publicUrl;
+  // Bucket is private; use a long-lived signed URL (10 years) so the image
+  // renders for anonymous viewers on the homepage and live pages.
+  const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+  const { data, error: signErr } = await supabase.storage
+    .from("live-thumbnails")
+    .createSignedUrl(path, TEN_YEARS);
+  if (signErr || !data?.signedUrl) throw signErr ?? new Error("Failed to sign thumbnail URL");
+  return data.signedUrl;
 }
