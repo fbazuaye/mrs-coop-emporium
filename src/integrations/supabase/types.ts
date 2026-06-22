@@ -496,6 +496,54 @@ export type Database = {
         }
         Relationships: []
       }
+      riders: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          plate_number: string | null
+          rating: number
+          status: Database["public"]["Enums"]["rider_status"]
+          total_deliveries: number
+          updated_at: string
+          user_id: string | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          zone: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          plate_number?: string | null
+          rating?: number
+          status?: Database["public"]["Enums"]["rider_status"]
+          total_deliveries?: number
+          updated_at?: string
+          user_id?: string | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          zone?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          plate_number?: string | null
+          rating?: number
+          status?: Database["public"]["Enums"]["rider_status"]
+          total_deliveries?: number
+          updated_at?: string
+          user_id?: string | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          zone?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -560,6 +608,8 @@ export type Database = {
         | "out_for_delivery"
         | "delivered"
         | "cancelled"
+      rider_status: "available" | "on_delivery" | "off_duty" | "suspended"
+      vehicle_type: "motorcycle" | "bicycle" | "car" | "van"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -715,6 +765,8 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      rider_status: ["available", "on_delivery", "off_duty", "suspended"],
+      vehicle_type: ["motorcycle", "bicycle", "car", "van"],
     },
   },
 } as const
