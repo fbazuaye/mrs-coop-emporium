@@ -162,7 +162,9 @@ function TrackingPage() {
     [pings],
   );
 
-  // Compute route whenever rider or destination meaningfully moves
+  // Compute route whenever rider or destination meaningfully moves.
+  // Falls back to a haversine-based estimate if the Routes API fails or
+  // returns a low-confidence result.
   useEffect(() => {
     if (!destPos) return;
     const origin = riderPos ?? HUB;
@@ -170,10 +172,22 @@ function TrackingPage() {
     setRouting(true);
     callComputeRoute({ data: { origin, destination: destPos, travelMode: "TWO_WHEELER" } })
       .then((r) => {
-        if (!cancelled) setRoute(r);
+        if (cancelled) return;
+        if (isLowConfidenceRoute(r)) {
+          const fb = estimateFallbackEta(origin, destPos);
+          setRoute({ polyline: "", distanceMeters: fb.distanceMeters, durationSeconds: fb.durationSeconds });
+          setEtaSource("fallback");
+        } else {
+          setRoute(r);
+          setEtaSource("routes");
+        }
       })
       .catch((e) => {
-        if (!cancelled) console.error("compute route", e);
+        if (cancelled) return;
+        console.warn("Routes API failed, using fallback ETA", e);
+        const fb = estimateFallbackEta(origin, destPos);
+        setRoute({ polyline: "", distanceMeters: fb.distanceMeters, durationSeconds: fb.durationSeconds });
+        setEtaSource("fallback");
       })
       .finally(() => {
         if (!cancelled) setRouting(false);
