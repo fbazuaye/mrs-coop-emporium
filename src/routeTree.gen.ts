@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedRiderIndexRouteImport } from './routes/_authenticated/rider/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedTrackOrderIdRouteImport } from './routes/_authenticated/track.$orderId'
+import { Route as AuthenticatedRiderEarningsRouteImport } from './routes/_authenticated/rider/earnings'
 import { Route as AuthenticatedRiderOrderIdRouteImport } from './routes/_authenticated/rider/$orderId'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
@@ -120,6 +121,12 @@ const AuthenticatedTrackOrderIdRoute =
     path: '/track/$orderId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRiderEarningsRoute =
+  AuthenticatedRiderEarningsRouteImport.update({
+    id: '/earnings',
+    path: '/earnings',
+    getParentRoute: () => AuthenticatedRiderRouteRoute,
+  } as any)
 const AuthenticatedRiderOrderIdRoute =
   AuthenticatedRiderOrderIdRouteImport.update({
     id: '/$orderId',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
+  '/rider/earnings': typeof AuthenticatedRiderEarningsRoute
   '/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/rider/': typeof AuthenticatedRiderIndexRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
+  '/rider/earnings': typeof AuthenticatedRiderEarningsRoute
   '/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/rider': typeof AuthenticatedRiderIndexRoute
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
+  '/_authenticated/rider/earnings': typeof AuthenticatedRiderEarningsRoute
   '/_authenticated/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/rider/': typeof AuthenticatedRiderIndexRoute
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/fleet'
     | '/admin/orders'
     | '/rider/$orderId'
+    | '/rider/earnings'
     | '/track/$orderId'
     | '/admin/'
     | '/rider/'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/admin/fleet'
     | '/admin/orders'
     | '/rider/$orderId'
+    | '/rider/earnings'
     | '/track/$orderId'
     | '/admin'
     | '/rider'
@@ -306,6 +318,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/fleet'
     | '/_authenticated/admin/orders'
     | '/_authenticated/rider/$orderId'
+    | '/_authenticated/rider/earnings'
     | '/_authenticated/track/$orderId'
     | '/_authenticated/admin/'
     | '/_authenticated/rider/'
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrackOrderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rider/earnings': {
+      id: '/_authenticated/rider/earnings'
+      path: '/earnings'
+      fullPath: '/rider/earnings'
+      preLoaderRoute: typeof AuthenticatedRiderEarningsRouteImport
+      parentRoute: typeof AuthenticatedRiderRouteRoute
+    }
     '/_authenticated/rider/$orderId': {
       id: '/_authenticated/rider/$orderId'
       path: '/$orderId'
@@ -526,12 +546,14 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRiderRouteRouteChildren {
   AuthenticatedRiderOrderIdRoute: typeof AuthenticatedRiderOrderIdRoute
+  AuthenticatedRiderEarningsRoute: typeof AuthenticatedRiderEarningsRoute
   AuthenticatedRiderIndexRoute: typeof AuthenticatedRiderIndexRoute
 }
 
 const AuthenticatedRiderRouteRouteChildren: AuthenticatedRiderRouteRouteChildren =
   {
     AuthenticatedRiderOrderIdRoute: AuthenticatedRiderOrderIdRoute,
+    AuthenticatedRiderEarningsRoute: AuthenticatedRiderEarningsRoute,
     AuthenticatedRiderIndexRoute: AuthenticatedRiderIndexRoute,
   }
 
