@@ -187,33 +187,57 @@ function LiveSessionPage() {
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-2xl bg-black shadow-premium">
               <div className="aspect-video w-full">
-                {session.stream_url ? (
-                  /\.m3u8|youtube|youtu\.be|vimeo/.test(session.stream_url) &&
-                  /youtube|youtu\.be|vimeo/.test(session.stream_url) ? (
-                    <iframe
-                      src={toEmbed(session.stream_url)}
-                      className="h-full w-full"
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      title={session.title}
-                    />
-                  ) : (
-                    <video
-                      src={session.stream_url}
-                      controls
-                      autoPlay
-                      playsInline
-                      className="h-full w-full bg-black object-contain"
-                    />
-                  )
-                ) : (
-                  <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary-deep via-primary to-primary-deep text-white/80">
-                    <div className="text-center">
-                      <Radio className="mx-auto h-10 w-10" />
-                      <div className="mt-2 text-sm">Stream not yet started</div>
+                {(() => {
+                  if (!session.stream_url) {
+                    return (
+                      <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary-deep via-primary to-primary-deep text-white/80">
+                        <div className="text-center">
+                          <Radio className="mx-auto h-10 w-10" />
+                          <div className="mt-2 text-sm">Stream not yet started</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  const embed = toEmbed(session.stream_url);
+                  if (embed) {
+                    return (
+                      <iframe
+                        src={embed}
+                        className="h-full w-full"
+                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                        allowFullScreen
+                        title={session.title}
+                      />
+                    );
+                  }
+                  if (/\.m3u8($|\?)|\.mp4($|\?)|\.webm($|\?)/i.test(session.stream_url)) {
+                    return (
+                      <video
+                        src={session.stream_url}
+                        controls
+                        autoPlay
+                        playsInline
+                        className="h-full w-full bg-black object-contain"
+                      />
+                    );
+                  }
+                  return (
+                    <div className="grid h-full w-full place-items-center bg-black text-center text-white/80">
+                      <div className="space-y-2 p-6">
+                        <Radio className="mx-auto h-10 w-10" />
+                        <p className="text-sm">This stream URL can't be embedded here.</p>
+                        <a
+                          href={session.stream_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold hover:bg-white/20"
+                        >
+                          Open stream in new tab
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
               <div className="absolute left-3 top-3 flex items-center gap-2">
                 {session.status === "live" && (
@@ -381,11 +405,14 @@ function ChatBubble({ m }: { m: LiveMessage }) {
   );
 }
 
-function toEmbed(url: string): string {
-  // YouTube
-  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-  if (yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=1`;
-  const vm = url.match(/vimeo\.com\/(\d+)/);
+function toEmbed(url: string): string | null {
+  // YouTube — supports watch?v=, youtu.be/, /live/, /shorts/, /embed/
+  const yt = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/,
+  );
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=1&playsinline=1&rel=0`;
+  // Vimeo
+  const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
-  return url;
+  return null;
 }

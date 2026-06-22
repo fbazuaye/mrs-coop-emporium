@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { fetchAllSessions, type LiveSession } from "@/lib/live";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/live")({
+export const Route = createFileRoute("/live/")({
   head: () => ({
     meta: [
       { title: "MRS Live — Shop while you watch" },
