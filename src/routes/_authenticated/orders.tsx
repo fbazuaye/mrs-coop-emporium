@@ -221,7 +221,19 @@ function OrdersPage() {
                   </div>
                   <div className="text-right">
                     <div className="font-display text-lg font-bold text-primary">{formatNaira(Number(o.total))}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">View details →</div>
+                    <div className="mt-1 flex items-center justify-end gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {o.status !== "delivered" && o.status !== "cancelled" && (
+                        <Link
+                          to="/track/$orderId"
+                          params={{ orderId: o.id }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-full bg-gradient-burgundy px-2.5 py-1 font-semibold text-primary-foreground"
+                        >
+                          Track live
+                        </Link>
+                      )}
+                      <span>View details →</span>
+                    </div>
                   </div>
                 </div>
               </li>

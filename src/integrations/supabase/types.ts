@@ -293,6 +293,8 @@ export type Database = {
           created_at: string
           delivered_at: string | null
           delivery_fee: number
+          dest_lat: number | null
+          dest_lng: number | null
           full_name: string
           id: string
           notes: string | null
@@ -320,6 +322,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_fee?: number
+          dest_lat?: number | null
+          dest_lng?: number | null
           full_name: string
           id?: string
           notes?: string | null
@@ -347,6 +351,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_fee?: number
+          dest_lat?: number | null
+          dest_lng?: number | null
           full_name?: string
           id?: string
           notes?: string | null
@@ -496,11 +502,62 @@ export type Database = {
         }
         Relationships: []
       }
+      rider_locations: {
+        Row: {
+          created_at: string
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          order_id: string | null
+          rider_id: string
+          speed: number | null
+        }
+        Insert: {
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          order_id?: string | null
+          rider_id: string
+          speed?: number | null
+        }
+        Update: {
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          order_id?: string | null
+          rider_id?: string
+          speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rider_locations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rider_locations_rider_id_fkey"
+            columns: ["rider_id"]
+            isOneToOne: false
+            referencedRelation: "riders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       riders: {
         Row: {
           created_at: string
+          current_lat: number | null
+          current_lng: number | null
           full_name: string
           id: string
+          location_updated_at: string | null
           notes: string | null
           phone: string
           plate_number: string | null
@@ -514,8 +571,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
           full_name: string
           id?: string
+          location_updated_at?: string | null
           notes?: string | null
           phone: string
           plate_number?: string | null
@@ -529,8 +589,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
           full_name?: string
           id?: string
+          location_updated_at?: string | null
           notes?: string | null
           phone?: string
           plate_number?: string | null
