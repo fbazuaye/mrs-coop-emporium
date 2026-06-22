@@ -7,6 +7,7 @@ import { BrandButton } from "@/components/brand/BrandButton";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/catalog-data";
+import { createOrder } from "@/lib/orders";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/checkout")({
@@ -57,22 +58,48 @@ function CheckoutPage() {
 
   const canPlace = form.fullName.trim() && form.phone.trim() && form.address.trim() && form.city.trim();
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
     if (!canPlace) {
       toast.error("Please complete delivery details");
       return;
     }
+    if (!user) {
+      toast.error("Please sign in to place an order");
+      void navigate({ to: "/auth" });
+      return;
+    }
     setPlacing(true);
-    setTimeout(() => {
-      clear();
+    try {
+      const order = await createOrder({
+        user_id: user.id,
+        payment_method: method,
+        subtotal,
+        delivery_fee: deliveryFee,
+        total,
+        full_name: form.fullName,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        notes: form.notes || undefined,
+        items: items.map((i) => ({
+          product_id: i.id,
+          name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+          image: i.image,
+          emoji: i.emoji,
+          gradient: i.gradient,
+          category: i.category,
+        })),
+      });
+      await clear();
+      toast.success(`Order ${order.order_number} placed`);
+      void navigate({ to: "/orders" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not place order");
+    } finally {
       setPlacing(false);
-      toast.success(
-        method === "pay_now"
-          ? "Order placed — proceed to payment"
-          : "Credit request submitted for approval",
-      );
-      void navigate({ to: "/" });
-    }, 800);
+    }
   };
 
   return (
