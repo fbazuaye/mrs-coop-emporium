@@ -20,6 +20,7 @@ export default defineConfig({
       manifest: false, // we ship our own /manifest.webmanifest
       devOptions: { enabled: false },
       workbox: {
+        importScripts: ["/push-handler.js"],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         navigateFallback: "/",
         navigateFallbackDenylist: [/^\/api\//, /^\/~oauth/, /^\/__/],
