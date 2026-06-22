@@ -136,7 +136,7 @@ function LiveSessionPage() {
       await postMessage({
         sessionId,
         content: input.trim(),
-        userName: profile?.full_name || user.email?.split("@")[0] || "Member",
+        userName: displayName,
       });
       setInput("");
     } catch (err) {
@@ -160,7 +160,7 @@ function LiveSessionPage() {
       postMessage({
         sessionId,
         content: `🛒 Added ${lp.product.name} to cart`,
-        userName: profile?.full_name || user.email?.split("@")[0] || "Member",
+        userName: displayName,
         kind: "purchase",
       }).catch(() => null);
     }
