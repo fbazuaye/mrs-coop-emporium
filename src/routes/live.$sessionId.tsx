@@ -335,9 +335,11 @@ function LiveSessionPage() {
           <div className="flex h-[70vh] min-h-[420px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft lg:h-[calc(100vh-9rem)]">
             <div className="border-b border-border/60 p-3 text-sm font-semibold">Live chat</div>
             <div className="flex-1 space-y-2 overflow-y-auto p-3">
-              {messages.length === 0 && (
+              {messagesLoading ? (
+                <p className="text-center text-xs text-muted-foreground">Loading chat…</p>
+              ) : messages.length === 0 ? (
                 <p className="text-center text-xs text-muted-foreground">Be the first to say hi 👋</p>
-              )}
+              ) : null}
               {messages.map((m) => (
                 <ChatBubble key={m.id} m={m} />
               ))}
