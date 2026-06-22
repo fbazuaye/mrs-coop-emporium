@@ -1,8 +1,10 @@
 import { Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice, type Product } from "@/lib/catalog-data";
+import { useCart } from "@/hooks/use-cart";
 
 export function ProductCard({ product, compact = false }: { product: Product; compact?: boolean }) {
+  const { add } = useCart();
   return (
     <article
       className={cn(
@@ -26,6 +28,17 @@ export function ProductCard({ product, compact = false }: { product: Product; co
         )}
         <button
           type="button"
+          onClick={() =>
+            add({
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              prevPrice: product.prevPrice,
+              emoji: product.emoji,
+              gradient: product.gradient,
+              category: product.category,
+            })
+          }
           aria-label={`Add ${product.name} to cart`}
           className="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-gradient-gold text-accent-foreground shadow-gold transition hover:scale-110 active:scale-95"
         >
