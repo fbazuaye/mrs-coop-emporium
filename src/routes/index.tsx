@@ -62,51 +62,14 @@ function HomePage() {
     <div className="space-y-12 py-4 sm:space-y-16 sm:py-8">
       {/* Hero */}
       <Container>
-        <section className="relative overflow-hidden rounded-3xl bg-primary-deep text-primary-foreground shadow-burgundy">
-          <div className="relative grid gap-0 p-6 sm:p-10 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:p-0">
-            {/* Left: Text Content */}
-            <div className="space-y-6 py-4 lg:px-14 lg:py-14">
-              <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] tracking-tight sm:text-4xl lg:text-[2.75rem]">
-                Quality products,
-                <br />
-                great prices,
-                <br />
-                delivered to you.
-              </h1>
-              <p className="max-w-md text-sm leading-relaxed text-primary-foreground/75 sm:text-base">
-                Shop on credit, pay in cash, and delivery.
-                <br />
-                Live shopping and more.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link to="/shop">
-                  <BrandButton variant="gold" size="lg" className="rounded-lg px-7">
-                    <ShoppingBag className="h-4 w-4" />
-                    Shop Now
-                  </BrandButton>
-                </Link>
-                <BrandButton
-                  variant="outline"
-                  size="lg"
-                  className="rounded-lg border-white/25 bg-black/20 px-7 text-primary-foreground backdrop-blur-sm hover:bg-black/30 hover:text-primary-foreground"
-                >
-                  <PlayCircle className="h-4 w-4" />
-                  Watch Live
-                </BrandButton>
-              </div>
-            </div>
-
-            {/* Right: Hero Image */}
-            <div className="relative hidden lg:flex lg:items-end lg:justify-center">
-              <img
-                src={heroImage}
-                alt="Happy shopper with groceries"
-                className="relative z-10 h-auto w-full max-w-lg object-contain object-bottom"
-                width={512}
-                height={512}
-              />
-            </div>
-          </div>
+        <section className="overflow-hidden rounded-3xl shadow-burgundy">
+          <Link to="/shop" aria-label="Shop now">
+            <img
+              src={heroAsset.url}
+              alt="Quality products, great prices, delivered to you"
+              className="block h-auto w-full"
+            />
+          </Link>
         </section>
       </Container>
 
