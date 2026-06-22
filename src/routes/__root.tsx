@@ -13,6 +13,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthProvider } from "@/hooks/use-auth";
+import { CartProvider } from "@/hooks/use-cart";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/layout/AppShell";
 import { BrandButton } from "@/components/brand/BrandButton";
@@ -163,10 +164,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppShell>
-          <Outlet />
-        </AppShell>
-        <Toaster position="top-center" richColors />
+        <CartProvider>
+          <AppShell>
+            <Outlet />
+          </AppShell>
+          <Toaster position="top-center" richColors />
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
