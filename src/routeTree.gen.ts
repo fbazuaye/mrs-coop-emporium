@@ -23,6 +23,7 @@ import { Route as AuthenticatedCreditAdminRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCreditRouteImport } from './routes/_authenticated/credit'
 import { Route as AuthenticatedRiderRouteRouteImport } from './routes/_authenticated/rider/route'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedRiderIndexRouteImport } from './routes/_authenticated/rider/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedTrackOrderIdRouteImport } from './routes/_authenticated/track.$orderId'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
@@ -102,6 +103,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRiderIndexRoute = AuthenticatedRiderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRiderRouteRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -158,7 +164,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/rider': typeof AuthenticatedRiderRouteRoute
+  '/rider': typeof AuthenticatedRiderRouteRouteWithChildren
   '/credit': typeof AuthenticatedCreditRoute
   '/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/rider/': typeof AuthenticatedRiderIndexRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/admin/products/new': typeof AuthenticatedAdminProductsNewRoute
   '/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
@@ -180,7 +187,6 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
-  '/rider': typeof AuthenticatedRiderRouteRoute
   '/credit': typeof AuthenticatedCreditRoute
   '/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -190,6 +196,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/rider': typeof AuthenticatedRiderIndexRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/admin/products/new': typeof AuthenticatedAdminProductsNewRoute
   '/admin/products': typeof AuthenticatedAdminProductsIndexRoute
@@ -205,7 +212,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/_authenticated/rider': typeof AuthenticatedRiderRouteRoute
+  '/_authenticated/rider': typeof AuthenticatedRiderRouteRouteWithChildren
   '/_authenticated/credit': typeof AuthenticatedCreditRoute
   '/_authenticated/credit-admin': typeof AuthenticatedCreditAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -215,6 +222,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/track/$orderId': typeof AuthenticatedTrackOrderIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/rider/': typeof AuthenticatedRiderIndexRoute
   '/_authenticated/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/_authenticated/admin/products/new': typeof AuthenticatedAdminProductsNewRoute
   '/_authenticated/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
@@ -240,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/track/$orderId'
     | '/admin/'
+    | '/rider/'
     | '/admin/products/$id'
     | '/admin/products/new'
     | '/admin/products/'
@@ -252,7 +261,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/reset-password'
     | '/shop'
-    | '/rider'
     | '/credit'
     | '/credit-admin'
     | '/dashboard'
@@ -262,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/track/$orderId'
     | '/admin'
+    | '/rider'
     | '/admin/products/$id'
     | '/admin/products/new'
     | '/admin/products'
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/orders'
     | '/_authenticated/track/$orderId'
     | '/_authenticated/admin/'
+    | '/_authenticated/rider/'
     | '/_authenticated/admin/products/$id'
     | '/_authenticated/admin/products/new'
     | '/_authenticated/admin/products/'
@@ -402,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rider/': {
+      id: '/_authenticated/rider/'
+      path: '/'
+      fullPath: '/rider/'
+      preLoaderRoute: typeof AuthenticatedRiderIndexRouteImport
+      parentRoute: typeof AuthenticatedRiderRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -487,9 +504,23 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedRiderRouteRouteChildren {
+  AuthenticatedRiderIndexRoute: typeof AuthenticatedRiderIndexRoute
+}
+
+const AuthenticatedRiderRouteRouteChildren: AuthenticatedRiderRouteRouteChildren =
+  {
+    AuthenticatedRiderIndexRoute: AuthenticatedRiderIndexRoute,
+  }
+
+const AuthenticatedRiderRouteRouteWithChildren =
+  AuthenticatedRiderRouteRoute._addFileChildren(
+    AuthenticatedRiderRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
-  AuthenticatedRiderRouteRoute: typeof AuthenticatedRiderRouteRoute
+  AuthenticatedRiderRouteRoute: typeof AuthenticatedRiderRouteRouteWithChildren
   AuthenticatedCreditRoute: typeof AuthenticatedCreditRoute
   AuthenticatedCreditAdminRoute: typeof AuthenticatedCreditAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -499,7 +530,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
-  AuthenticatedRiderRouteRoute: AuthenticatedRiderRouteRoute,
+  AuthenticatedRiderRouteRoute: AuthenticatedRiderRouteRouteWithChildren,
   AuthenticatedCreditRoute: AuthenticatedCreditRoute,
   AuthenticatedCreditAdminRoute: AuthenticatedCreditAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
