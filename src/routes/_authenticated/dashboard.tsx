@@ -28,7 +28,8 @@ const ROLE_CONFIG: Record<AppRole, { icon: typeof Shield; tagline: string; cards
     icon: Store,
     tagline: "Manage your storefront and inventory.",
     cards: [
-      { icon: Package, label: "Products", hint: "Add, edit, restock items" },
+      { icon: Package, label: "Products", hint: "Add, edit, restock items", to: "/admin/products" },
+      { icon: Tags, label: "Categories", hint: "Organise your catalog", to: "/admin/categories" },
       { icon: ClipboardList, label: "Orders", hint: "Fulfil and track customer orders" },
       { icon: BarChart3, label: "Sales Reports", hint: "Daily, weekly, monthly insights" },
     ],
