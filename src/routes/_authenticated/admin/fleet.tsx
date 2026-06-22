@@ -30,6 +30,8 @@ import {
   updateRider,
   VEHICLE_LABEL,
   assignRiderToOrder,
+  bulkAssignRider,
+  bulkReassignRider,
   type Rider,
   type RiderStatus,
   type VehicleType,
