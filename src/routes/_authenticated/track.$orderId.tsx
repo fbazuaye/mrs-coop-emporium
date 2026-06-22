@@ -241,6 +241,52 @@ function TrackingPage() {
   };
   useEffect(() => () => stopSharing(), []);
 
+  // Browser push notifications: ask once on mount, then fire when the
+  // order status changes (works for customers, riders, fleet, store owners).
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">(
+    typeof window !== "undefined" && "Notification" in window ? Notification.permission : "unsupported",
+  );
+  const requestNotifications = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    try {
+      const p = await Notification.requestPermission();
+      setNotifPermission(p);
+      if (p === "granted") toast.success("Delivery alerts enabled");
+    } catch {
+      /* ignore */
+    }
+  };
+  useEffect(() => {
+    if (!order) return;
+    const prev = lastStatusRef.current;
+    if (prev && prev !== order.status) {
+      const label = STATUS_LABELS[order.status] ?? order.status;
+      const body = `Order ${order.order_number} • ${label}`;
+      toast.info(body);
+      if (
+        typeof window !== "undefined" &&
+        "Notification" in window &&
+        Notification.permission === "granted" &&
+        document.visibilityState !== "visible"
+      ) {
+        try {
+          const n = new Notification("Delivery update", {
+            body,
+            tag: `order-${order.id}`,
+            icon: "/favicon.ico",
+          });
+          n.onclick = () => {
+            window.focus();
+            n.close();
+          };
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    lastStatusRef.current = order.status;
+  }, [order?.status, order?.order_number, order?.id]);
+
   const advance = async () => {
     if (!order) return;
     const next = nextStatus(order.status);
