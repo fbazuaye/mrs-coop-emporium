@@ -77,11 +77,12 @@ function RiderOrderDetail() {
   const canOutForDelivery = order.status === "picked_up";
   const canComplete = order.status === "out_for_delivery" || order.status === "picked_up";
 
-  const run = async (label: string, fn: () => Promise<void>) => {
+  const run = async (label: string, fn: () => Promise<{ queued: boolean } | void>) => {
     try {
       setBusy(true);
-      await fn();
-      toast.success(label);
+      const res = await fn();
+      if (res && "queued" in res && res.queued) toast.info(`${label} (queued — will sync when online)`);
+      else toast.success(label);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Action failed");

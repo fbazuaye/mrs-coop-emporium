@@ -46,28 +46,47 @@ export function bucketOrders(orders: Order[]) {
   };
 }
 
-export async function acceptAssignment(orderId: string): Promise<void> {
-  const { error } = await db
-    .from("orders")
-    .update({ rider_accepted_at: new Date().toISOString() })
-    .eq("id", orderId);
-  if (error) throw error;
+export async function acceptAssignment(orderId: string): Promise<{ queued: boolean }> {
+  const { enqueue, isOnline } = await import("./rider-offline");
+  const ts = new Date().toISOString();
+  if (!isOnline()) {
+    enqueue({ kind: "accept", orderId });
+    return { queued: true };
+  }
+  const { error } = await db.from("orders").update({ rider_accepted_at: ts }).eq("id", orderId);
+  if (error) {
+    enqueue({ kind: "accept", orderId });
+    return { queued: true };
+  }
+  return { queued: false };
 }
 
-export async function startDelivery(orderId: string): Promise<void> {
-  const { error } = await db
-    .from("orders")
-    .update({ status: "picked_up" as OrderStatus })
-    .eq("id", orderId);
-  if (error) throw error;
+export async function startDelivery(orderId: string): Promise<{ queued: boolean }> {
+  const { enqueue, isOnline } = await import("./rider-offline");
+  if (!isOnline()) {
+    enqueue({ kind: "start", orderId });
+    return { queued: true };
+  }
+  const { error } = await db.from("orders").update({ status: "picked_up" as OrderStatus }).eq("id", orderId);
+  if (error) {
+    enqueue({ kind: "start", orderId });
+    return { queued: true };
+  }
+  return { queued: false };
 }
 
-export async function markOutForDelivery(orderId: string): Promise<void> {
-  const { error } = await db
-    .from("orders")
-    .update({ status: "out_for_delivery" as OrderStatus })
-    .eq("id", orderId);
-  if (error) throw error;
+export async function markOutForDelivery(orderId: string): Promise<{ queued: boolean }> {
+  const { enqueue, isOnline } = await import("./rider-offline");
+  if (!isOnline()) {
+    enqueue({ kind: "out_for_delivery", orderId });
+    return { queued: true };
+  }
+  const { error } = await db.from("orders").update({ status: "out_for_delivery" as OrderStatus }).eq("id", orderId);
+  if (error) {
+    enqueue({ kind: "out_for_delivery", orderId });
+    return { queued: true };
+  }
+  return { queued: false };
 }
 
 export async function completeDelivery(input: {
