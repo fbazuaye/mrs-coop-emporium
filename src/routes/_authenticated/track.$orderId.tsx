@@ -61,10 +61,12 @@ function TrackingPage() {
   const [rider, setRider] = useState<Rider | null>(null);
   const [pings, setPings] = useState<RiderPing[]>([]);
   const [route, setRoute] = useState<RouteResult | null>(null);
+  const [etaSource, setEtaSource] = useState<"routes" | "fallback" | null>(null);
   const [loading, setLoading] = useState(true);
   const [routing, setRouting] = useState(false);
   const [sharing, setSharing] = useState(false);
   const watchIdRef = useRef<number | null>(null);
+  const lastStatusRef = useRef<string | null>(null);
 
   const isStaff =
     role === "store_owner" || role === "super_admin" || role === "fleet_manager";
