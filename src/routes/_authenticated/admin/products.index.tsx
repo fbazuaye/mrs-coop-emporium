@@ -10,7 +10,7 @@ import {
   fetchProducts,
   formatStock,
   type ProductWithImages,
-} from "@/lib/products-ui";
+} from "@/lib/products";
 
 export const Route = createFileRoute("/_authenticated/admin/products/")({
   component: ProductsListPage,
