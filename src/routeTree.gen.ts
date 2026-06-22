@@ -18,6 +18,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCreditRouteImport } from './routes/_authenticated/credit'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
@@ -69,6 +70,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCreditRoute = AuthenticatedCreditRouteImport.update({
+  id: '/credit',
+  path: '/credit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/credit': typeof AuthenticatedCreditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
+  '/credit': typeof AuthenticatedCreditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/credit': typeof AuthenticatedCreditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shop'
     | '/admin'
+    | '/credit'
     | '/dashboard'
     | '/admin/categories'
     | '/admin/'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/reset-password'
     | '/shop'
+    | '/credit'
     | '/dashboard'
     | '/admin/categories'
     | '/admin'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shop'
     | '/_authenticated/admin'
+    | '/_authenticated/credit'
     | '/_authenticated/dashboard'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/'
@@ -280,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/credit': {
+      id: '/_authenticated/credit'
+      path: '/credit'
+      fullPath: '/credit'
+      preLoaderRoute: typeof AuthenticatedCreditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -349,11 +368,13 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedCreditRoute: typeof AuthenticatedCreditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedCreditRoute: AuthenticatedCreditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
