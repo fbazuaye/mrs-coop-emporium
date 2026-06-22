@@ -304,7 +304,14 @@ export type Database = {
           payment_method: Database["public"]["Enums"]["order_payment_method"]
           phone: string
           picked_up_at: string | null
+          pod_captured_at: string | null
+          pod_notes: string | null
+          pod_photo_url: string | null
+          pod_recipient_name: string | null
+          pod_signature_url: string | null
           processed_at: string | null
+          rider_accepted_at: string | null
+          rider_payout: number | null
           status: Database["public"]["Enums"]["order_status"]
           status_history: Json
           subtotal: number
@@ -333,7 +340,14 @@ export type Database = {
           payment_method?: Database["public"]["Enums"]["order_payment_method"]
           phone: string
           picked_up_at?: string | null
+          pod_captured_at?: string | null
+          pod_notes?: string | null
+          pod_photo_url?: string | null
+          pod_recipient_name?: string | null
+          pod_signature_url?: string | null
           processed_at?: string | null
+          rider_accepted_at?: string | null
+          rider_payout?: number | null
           status?: Database["public"]["Enums"]["order_status"]
           status_history?: Json
           subtotal?: number
@@ -362,7 +376,14 @@ export type Database = {
           payment_method?: Database["public"]["Enums"]["order_payment_method"]
           phone?: string
           picked_up_at?: string | null
+          pod_captured_at?: string | null
+          pod_notes?: string | null
+          pod_photo_url?: string | null
+          pod_recipient_name?: string | null
+          pod_signature_url?: string | null
           processed_at?: string | null
+          rider_accepted_at?: string | null
+          rider_payout?: number | null
           status?: Database["public"]["Enums"]["order_status"]
           status_history?: Json
           subtotal?: number
