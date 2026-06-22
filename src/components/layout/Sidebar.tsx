@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard, Settings2 } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -7,6 +7,7 @@ export function Sidebar() {
   const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
   const isAdmin = role === "store_owner" || role === "super_admin";
+  const canReviewCredit = role === "credit_officer" || role === "super_admin" || role === "store_owner";
 
   const handleSignOut = async () => {
     await signOut();
@@ -37,6 +38,24 @@ export function Sidebar() {
           >
             <LayoutDashboard className="h-5 w-5" />
             <span>Dashboard</span>
+          </Link>
+        )}
+        {user && (
+          <Link
+            to="/credit"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Banknote className="h-5 w-5" />
+            <span>Buy on credit</span>
+          </Link>
+        )}
+        {canReviewCredit && (
+          <Link
+            to="/credit-admin"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <ClipboardCheck className="h-5 w-5" />
+            <span>Credit admin</span>
           </Link>
         )}
         {isAdmin && (
