@@ -43,6 +43,8 @@ function LiveSessionPage() {
   const [session, setSession] = useState<LiveSession | null>(null);
   const [products, setProducts] = useState<LiveProduct[]>([]);
   const [messages, setMessages] = useState<LiveMessage[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(true);
   const [viewers, setViewers] = useState(1);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -50,16 +52,17 @@ function LiveSessionPage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      fetchSession(sessionId),
-      fetchSessionProducts(sessionId),
-      fetchRecentMessages(sessionId),
-    ]).then(([s, p, m]) => {
-      if (!active) return;
-      setSession(s);
-      setProducts(p);
-      setMessages(m);
-    });
+    fetchSession(sessionId)
+      .then((s) => active && setSession(s))
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load session"));
+    fetchSessionProducts(sessionId)
+      .then((p) => active && setProducts(p))
+      .catch(() => null)
+      .finally(() => active && setProductsLoading(false));
+    fetchRecentMessages(sessionId, 40)
+      .then((m) => active && setMessages(m))
+      .catch(() => null)
+      .finally(() => active && setMessagesLoading(false));
     return () => {
       active = false;
     };
