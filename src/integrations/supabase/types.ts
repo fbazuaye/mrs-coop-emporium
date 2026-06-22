@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          emoji: string | null
+          gradient: string | null
+          id: string
+          image: string | null
+          name: string
+          prev_price: number | null
+          price: number
+          product_id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          prev_price?: number | null
+          price: number
+          product_id: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          prev_price?: number | null
+          price?: number
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
