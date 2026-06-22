@@ -4,6 +4,7 @@ import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
 import { Footer } from "./Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { SupportChat } from "@/components/support/SupportChat";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Footer />
       <BottomNav />
       <InstallPrompt />
+      <SupportChat />
     </div>
   );
 }
