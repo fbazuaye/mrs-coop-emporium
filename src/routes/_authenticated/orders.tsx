@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Package, Search, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Package, Search, ShoppingBag, Wallet, Truck, CheckCircle2 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -13,6 +13,7 @@ import {
   STATUS_TONE,
   type Order,
   type OrderItem,
+  type OrderStatus,
 } from "@/lib/orders";
 
 export const Route = createFileRoute("/_authenticated/orders")({
@@ -25,11 +26,45 @@ export const Route = createFileRoute("/_authenticated/orders")({
   component: OrdersPage,
 });
 
+type StatusFilter = "all" | "active" | "delivered" | "cancelled" | OrderStatus;
+type DateRange = "all" | "7d" | "30d" | "90d";
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "delivered", label: "Delivered" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+const DATE_FILTERS: { value: DateRange; label: string }[] = [
+  { value: "all", label: "All time" },
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "90d", label: "Last 90 days" },
+];
+
+function withinRange(d: string, r: DateRange): boolean {
+  if (r === "all") return true;
+  const days = r === "7d" ? 7 : r === "30d" ? 30 : 90;
+  const cutoff = Date.now() - days * 86400_000;
+  return new Date(d).getTime() >= cutoff;
+}
+
+function matchesStatus(s: OrderStatus, f: StatusFilter): boolean {
+  if (f === "all") return true;
+  if (f === "active") return s !== "delivered" && s !== "cancelled";
+  if (f === "delivered") return s === "delivered";
+  if (f === "cancelled") return s === "cancelled";
+  return s === f;
+}
+
 function OrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [dateFilter, setDateFilter] = useState<DateRange>("all");
   const [active, setActive] = useState<Order | null>(null);
 
   useEffect(() => {
@@ -48,15 +83,30 @@ function OrdersPage() {
     };
   }, [user?.id]);
 
+  const stats = useMemo(() => {
+    const total = orders.length;
+    const active = orders.filter((o) => o.status !== "delivered" && o.status !== "cancelled").length;
+    const delivered = orders.filter((o) => o.status === "delivered").length;
+    const spend = orders
+      .filter((o) => o.status !== "cancelled")
+      .reduce((s, o) => s + Number(o.total), 0);
+    return { total, active, delivered, spend };
+  }, [orders]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return orders;
-    return orders.filter(
-      (o) =>
-        o.order_number.toLowerCase().includes(q) ||
-        STATUS_LABELS[o.status].toLowerCase().includes(q),
-    );
-  }, [orders, query]);
+    return orders
+      .filter((o) => matchesStatus(o.status, statusFilter))
+      .filter((o) => withinRange(o.created_at, dateFilter))
+      .filter((o) => {
+        if (!q) return true;
+        return (
+          o.order_number.toLowerCase().includes(q) ||
+          STATUS_LABELS[o.status].toLowerCase().includes(q) ||
+          o.city.toLowerCase().includes(q)
+        );
+      });
+  }, [orders, query, statusFilter, dateFilter]);
 
   return (
     <Container>
@@ -66,19 +116,70 @@ function OrdersPage() {
             <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
           </Link>
           <div className="mt-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Orders</div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">My orders</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Track every order from placement to delivery.</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">My order history</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Every order you've placed, with full delivery tracking.</p>
         </header>
 
-        <div className="relative max-w-md">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by order number or status…"
-            className="h-11 w-full rounded-full border border-input bg-muted/60 pl-10 pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:outline-hidden focus:ring-2 focus:ring-ring/30"
-          />
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat icon={<Package className="h-5 w-5" />} label="Total orders" value={String(stats.total)} />
+          <Stat icon={<Truck className="h-5 w-5" />} label="In progress" value={String(stats.active)} />
+          <Stat icon={<CheckCircle2 className="h-5 w-5" />} label="Delivered" value={String(stats.delivered)} />
+          <Stat icon={<Wallet className="h-5 w-5" />} label="Lifetime spend" value={formatNaira(stats.spend)} />
+        </section>
+
+        <div className="space-y-3 rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by order number, status, city…"
+                className="h-10 w-full rounded-full border border-input bg-muted/60 pl-10 pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:outline-hidden focus:ring-2 focus:ring-ring/30"
+              />
+            </div>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value as DateRange)}
+              className="h-10 rounded-full border border-input bg-background px-4 text-xs font-semibold"
+            >
+              {DATE_FILTERS.map((d) => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setStatusFilter(f.value)}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                  statusFilter === f.value
+                    ? "bg-gradient-burgundy text-primary-foreground shadow-burgundy"
+                    : "border border-border bg-background hover:bg-muted"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <div className="mx-1 h-6 w-px self-center bg-border" />
+            {ORDER_STATUSES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setStatusFilter(s)}
+                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${
+                  statusFilter === s
+                    ? "bg-foreground text-background"
+                    : "border border-border bg-background hover:bg-muted"
+                }`}
+              >
+                {STATUS_LABELS[s]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -87,7 +188,7 @@ function OrdersPage() {
           <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
             <ShoppingBag className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">
-              {orders.length === 0 ? "You haven't placed any orders yet." : "No orders match your search."}
+              {orders.length === 0 ? "You haven't placed any orders yet." : "No orders match these filters."}
             </p>
             {orders.length === 0 && (
               <Link to="/shop" className="mt-4 inline-flex rounded-xl bg-gradient-burgundy px-4 py-2 text-sm font-semibold text-primary-foreground shadow-burgundy">
@@ -110,6 +211,9 @@ function OrdersPage() {
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${STATUS_TONE[o.status]}`}>
                         {STATUS_LABELS[o.status]}
                       </span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase">
+                        {o.payment_method === "credit" ? "Credit" : "Paid"}
+                      </span>
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
                       {new Date(o.created_at).toLocaleString()} · {o.city}
@@ -117,9 +221,7 @@ function OrdersPage() {
                   </div>
                   <div className="text-right">
                     <div className="font-display text-lg font-bold text-primary">{formatNaira(Number(o.total))}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {o.payment_method === "credit" ? "Credit" : "Paid"}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">View details →</div>
                   </div>
                 </div>
               </li>
@@ -130,6 +232,18 @@ function OrdersPage() {
 
       {active && <OrderDrawer order={active} onClose={() => setActive(null)} />}
     </Container>
+  );
+}
+
+function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-soft">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        {icon}
+        <span className="text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+      </div>
+      <div className="mt-2 font-display text-xl font-bold text-foreground">{value}</div>
+    </div>
   );
 }
 
@@ -187,7 +301,7 @@ export function OrderDrawer({ order, onClose }: { order: Order; onClose: () => v
         </div>
 
         <div className="mt-6">
-          <h3 className="text-sm font-semibold">Items</h3>
+          <h3 className="text-sm font-semibold">Items ({items.length})</h3>
           <ul className="mt-2 divide-y divide-border/60 rounded-xl border border-border/60 bg-card">
             {items.map((i) => (
               <li key={i.id} className="flex items-center gap-3 p-3">
@@ -207,9 +321,24 @@ export function OrderDrawer({ order, onClose }: { order: Order; onClose: () => v
         <dl className="mt-6 space-y-2 rounded-xl bg-muted/50 p-4 text-sm">
           <Row label="Subtotal" value={formatNaira(Number(order.subtotal))} />
           <Row label="Delivery fee" value={Number(order.delivery_fee) === 0 ? "Free" : formatNaira(Number(order.delivery_fee))} />
+          <Row label="Payment" value={order.payment_method === "credit" ? "Credit" : "Paid"} />
           <div className="my-2 h-px bg-border" />
           <Row label="Total" value={formatNaira(Number(order.total))} bold />
         </dl>
+
+        {order.status_history && order.status_history.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold">Timeline</h3>
+            <ul className="mt-2 space-y-1 rounded-xl border border-border/60 bg-card p-3 text-xs text-muted-foreground">
+              {order.status_history.map((h, i) => (
+                <li key={i} className="flex justify-between gap-3">
+                  <span className="font-medium text-foreground">{STATUS_LABELS[h.status] ?? h.status}</span>
+                  <span>{new Date(h.at).toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <button
           onClick={onClose}
