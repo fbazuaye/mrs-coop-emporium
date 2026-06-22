@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, Bike, Wallet } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { useAuth } from "@/hooks/use-auth";
