@@ -332,11 +332,26 @@ function TrackingPage() {
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[order.status]}`}
-        >
-          {STATUS_LABELS[order.status]}
-        </span>
+        <div className="flex items-center gap-2">
+          {notifPermission === "default" && (
+            <button
+              onClick={requestNotifications}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted"
+            >
+              Enable alerts
+            </button>
+          )}
+          {notifPermission === "granted" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+              Alerts on
+            </span>
+          )}
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[order.status]}`}
+          >
+            {STATUS_LABELS[order.status]}
+          </span>
+        </div>
       </div>
 
       <header className="flex flex-col gap-1">
