@@ -36,7 +36,6 @@ export const Route = createFileRoute("/_authenticated/rider/$orderId")({
 function RiderOrderDetail() {
   const { orderId } = Route.useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [items, setItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
