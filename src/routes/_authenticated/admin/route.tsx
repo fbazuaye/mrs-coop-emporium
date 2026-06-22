@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
-import { Package, Tags, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Package, Tags, AlertTriangle, ArrowLeft, BarChart3 } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -18,7 +18,7 @@ function AdminLayout() {
     );
   }
 
-  const allowed = role === "store_owner" || role === "super_admin" || role === "fleet_manager";
+  const allowed = role === "store_owner" || role === "super_admin" || role === "fleet_manager" || role === "credit_officer";
   if (!allowed) {
     return (
       <Container>
@@ -56,6 +56,12 @@ function AdminLayout() {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold transition data-[status=active]:border-primary data-[status=active]:bg-primary data-[status=active]:text-primary-foreground sm:text-sm"
             >
               <Tags className="h-4 w-4" /> Categories
+            </Link>
+            <Link
+              to="/admin/analytics"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold transition data-[status=active]:border-primary data-[status=active]:bg-primary data-[status=active]:text-primary-foreground sm:text-sm"
+            >
+              <BarChart3 className="h-4 w-4" /> Analytics
             </Link>
           </nav>
         </div>
