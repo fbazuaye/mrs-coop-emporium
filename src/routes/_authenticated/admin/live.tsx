@@ -13,6 +13,7 @@ import {
   addSessionProduct,
   setSpotlight,
   removeSessionProduct,
+  uploadLiveThumbnail,
   type LiveSession,
   type LiveProduct,
 } from "@/lib/live";
