@@ -278,7 +278,18 @@ function DashboardTab({ riders, orders }: { riders: Rider[]; orders: Order[] }) 
                       {o.full_name} · {o.city} · {r ? `🏍 ${r.full_name}` : "Unassigned"}
                     </div>
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-primary">{formatNaira(Number(o.total))}</div>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-sm font-semibold tabular-nums text-primary">{formatNaira(Number(o.total))}</div>
+                    {["assigned_rider", "picked_up", "out_for_delivery"].includes(o.status) && (
+                      <Link
+                        to="/track/$orderId"
+                        params={{ orderId: o.id }}
+                        className="text-[10px] font-semibold uppercase tracking-wider text-primary hover:underline"
+                      >
+                        Track →
+                      </Link>
+                    )}
+                  </div>
                 </li>
               );
             })}
