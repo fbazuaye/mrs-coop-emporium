@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2 } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Sidebar() {
-  const { user, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = role === "store_owner" || role === "super_admin";
 
   const handleSignOut = async () => {
     await signOut();
