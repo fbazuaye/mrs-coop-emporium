@@ -36,6 +36,20 @@ function AdminLivePage() {
     stream_url: "",
     thumbnail_url: "",
   });
+  const [uploading, setUploading] = useState(false);
+
+  const onPickThumbnail = async (file: File) => {
+    setUploading(true);
+    try {
+      const url = await uploadLiveThumbnail(file);
+      setForm((f) => ({ ...f, thumbnail_url: url }));
+      toast.success("Thumbnail uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const reload = () => fetchAllSessions().then(setSessions);
 
