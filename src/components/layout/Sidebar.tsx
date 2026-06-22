@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, LogIn, LayoutDashboard, Settings2 } from "lucide-react";
+import { LogOut, LogIn, LayoutDashboard, Settings2, Banknote, ClipboardCheck } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { useAuth } from "@/hooks/use-auth";
 
