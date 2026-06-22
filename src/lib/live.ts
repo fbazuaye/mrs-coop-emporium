@@ -197,3 +197,14 @@ export function pickPrimaryImage(p: LiveProduct["product"]): string | null {
   const primary = p.images.find((i) => i.is_primary);
   return (primary ?? p.images[0]).url;
 }
+
+export async function uploadLiveThumbnail(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage
+    .from("live-thumbnails")
+    .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+  if (error) throw error;
+  const { data } = supabase.storage.from("live-thumbnails").getPublicUrl(path);
+  return data.publicUrl;
+}
