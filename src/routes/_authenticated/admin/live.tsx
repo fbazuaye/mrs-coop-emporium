@@ -111,7 +111,26 @@ function AdminLivePage() {
             <input className="rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
             <input className="rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Host name" value={form.host_name} onChange={(e) => setForm({ ...form, host_name: e.target.value })} />
             <input className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" placeholder="Stream URL (HLS .m3u8, YouTube, or Vimeo)" value={form.stream_url} onChange={(e) => setForm({ ...form, stream_url: e.target.value })} />
-            <input className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" placeholder="Thumbnail URL" value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} />
+            <input className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" placeholder="Thumbnail URL (or upload below)" value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} />
+            <div className="flex items-center gap-3 sm:col-span-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-background px-3 py-2 text-sm hover:bg-muted">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) onPickThumbnail(f);
+                    e.target.value = "";
+                  }}
+                />
+                {uploading ? "Uploading…" : "Upload thumbnail"}
+              </label>
+              {form.thumbnail_url && (
+                <img src={form.thumbnail_url} alt="thumbnail preview" className="h-12 w-20 rounded object-cover" />
+              )}
+            </div>
             <textarea className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <BrandButton type="submit" variant="primary" size="md"><Plus className="h-4 w-4" />Create</BrandButton>
