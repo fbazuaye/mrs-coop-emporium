@@ -77,6 +77,15 @@ export function Sidebar() {
             <span>Fleet management</span>
           </Link>
         )}
+        {isRider && (
+          <Link
+            to="/rider"
+            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition hover:bg-sidebar-accent data-[status=active]:bg-gradient-burgundy data-[status=active]:text-primary-foreground data-[status=active]:shadow-burgundy"
+          >
+            <Bike className="h-5 w-5" />
+            <span>Rider app</span>
+          </Link>
+        )}
         {canReviewCredit && (
           <Link
             to="/credit-admin"
