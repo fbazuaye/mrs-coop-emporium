@@ -17,17 +17,19 @@ import {
 import { Container } from "@/components/layout/Container";
 
 import { ProductRow } from "@/components/catalog/ProductRow";
+import { DbProductCard } from "@/components/catalog/DbProductCard";
 import {
   CATEGORIES,
   FEATURED,
   FLASH_DEALS,
-  RECENTLY_ADDED,
   TOP_SELLING,
   formatPrice,
 } from "@/lib/catalog-data";
 import heroAsset from "@/assets/hero-pineapple.png.asset.json";
 import { useCart } from "@/hooks/use-cart";
 import { fetchActiveSessions, type LiveSession } from "@/lib/live";
+import { fetchProducts, type ProductWithImages } from "@/lib/products";
+import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -203,14 +205,9 @@ function HomePage() {
         />
       </Container>
 
-      {/* Recently Added */}
+      {/* Recently Added (from database) */}
       <Container>
-        <ProductRow
-          eyebrow="Fresh on the shelves"
-          title="Recently Added"
-          icon={Clock}
-          products={RECENTLY_ADDED}
-        />
+        <RecentlyAddedFromDb />
       </Container>
 
       {/* Live Shopping Preview */}
@@ -218,6 +215,42 @@ function HomePage() {
         <LiveShoppingPreview />
       </Container>
     </div>
+  );
+}
+
+function RecentlyAddedFromDb() {
+  const [products, setProducts] = useState<ProductWithImages[]>([]);
+  useEffect(() => {
+    fetchProducts()
+      .then((rows) => setProducts(rows.filter((p) => p.is_active).slice(0, 8)))
+      .catch(() => null);
+  }, []);
+  if (products.length === 0) return null;
+  return (
+    <section className="space-y-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            Fresh on the shelves
+          </div>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            Recently Added
+          </h2>
+        </div>
+        <Link
+          to="/shop"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5 sm:text-sm"
+        >
+          See all
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+        {products.map((p) => (
+          <DbProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
   );
 }
 
