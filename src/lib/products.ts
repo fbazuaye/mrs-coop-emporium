@@ -83,6 +83,11 @@ export async function fetchProduct(id: string): Promise<ProductWithImages | null
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
+  if (data) {
+    (data as unknown as ProductWithImages).images = await signProductImages(
+      (data as unknown as ProductWithImages).images ?? [],
+    );
+  }
   return (data as unknown as ProductWithImages) ?? null;
 }
 
