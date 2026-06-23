@@ -139,13 +139,6 @@ export async function uploadProductImage(productId: string, file: File) {
     .from("product_images")
     .insert({
       product_id: productId,
-  const signed = await supabase.storage
-    .from("product-images")
-    .createSignedUrl(path, 60 * 60 * 24 * 7);
-  const { data, error } = await supabase
-    .from("product_images")
-    .insert({
-      product_id: productId,
       url: signed.data?.signedUrl ?? "",
       storage_path: path,
       is_primary: false,
