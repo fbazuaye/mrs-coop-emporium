@@ -28,6 +28,9 @@ export type Order = {
   city: string;
   dest_lat: number | null;
   dest_lng: number | null;
+  delivery_distance_m: number | null;
+  delivery_duration_s: number | null;
+
   notes: string | null;
   assigned_rider_id: string | null;
   status_history: { status: OrderStatus; at: string }[];
