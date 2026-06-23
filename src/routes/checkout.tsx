@@ -274,9 +274,41 @@ function CheckoutPage() {
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Delivery fee</dt>
                   <dd className="font-semibold tabular-nums text-foreground">
-                    {deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}
+                    {quoting ? (
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Calculating…
+                      </span>
+                    ) : quote ? (
+                      formatPrice(deliveryFee)
+                    ) : (
+                      <span className="text-muted-foreground">Enter address</span>
+                    )}
                   </dd>
                 </div>
+                {quote && (
+                  <div className="rounded-xl bg-muted/40 p-3 text-[11px] text-muted-foreground space-y-1.5">
+                    <div className="flex items-start gap-1.5">
+                      <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                      <span className="truncate">{quote.formattedAddress}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1">
+                        <Truck className="h-3 w-3" />
+                        {(quote.distanceMeters / 1000).toFixed(1)} km from store
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        ~{Math.max(1, Math.round(quote.durationSeconds / 60))} min
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {quoteError && (
+                  <div className="rounded-xl bg-rose-50 p-2 text-[11px] text-rose-700 dark:bg-rose-950/30 dark:text-rose-300">
+                    {quoteError}
+                  </div>
+                )}
+
                 <div className="my-3 h-px bg-border" />
                 <div className="flex items-baseline justify-between">
                   <dt className="font-semibold text-foreground">Total</dt>
