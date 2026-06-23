@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Wallet, CreditCard, CheckCircle2, ArrowLeft, Lock, Truck } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Wallet, CreditCard, CheckCircle2, ArrowLeft, Lock, Truck, MapPin, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Container } from "@/components/layout/Container";
 import { BrandButton } from "@/components/brand/BrandButton";
@@ -8,7 +9,9 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/catalog-data";
 import { createOrder } from "@/lib/orders";
+import { quoteDelivery, type DeliveryQuote } from "@/lib/delivery.functions";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
