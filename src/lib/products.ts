@@ -50,13 +50,30 @@ export async function fetchCategories(): Promise<Category[]> {
   return (data ?? []) as Category[];
 }
 
+async function signProductImages(images: ProductImage[]): Promise<ProductImage[]> {
+  const paths = images.map((i) => i.storage_path).filter((p): p is string => !!p);
+  if (paths.length === 0) return images;
+  const { data, error } = await supabase.storage
+    .from("product-images")
+    .createSignedUrls(paths, 60 * 60 * 24 * 7);
+  if (error || !data) return images;
+  const map = new Map(data.map((d) => [d.path ?? "", d.signedUrl]));
+  return images.map((i) =>
+    i.storage_path && map.get(i.storage_path)
+      ? { ...i, url: map.get(i.storage_path) as string }
+      : i,
+  );
+}
+
 export async function fetchProducts(): Promise<ProductWithImages[]> {
   const { data, error } = await supabase
     .from("products")
     .select("*, images:product_images(*), category:categories(id,name,slug)")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as unknown as ProductWithImages[];
+  const rows = (data ?? []) as unknown as ProductWithImages[];
+  for (const p of rows) p.images = await signProductImages(p.images ?? []);
+  return rows;
 }
 
 export async function fetchProduct(id: string): Promise<ProductWithImages | null> {
@@ -66,6 +83,11 @@ export async function fetchProduct(id: string): Promise<ProductWithImages | null
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
+  if (data) {
+    (data as unknown as ProductWithImages).images = await signProductImages(
+      (data as unknown as ProductWithImages).images ?? [],
+    );
+  }
   return (data as unknown as ProductWithImages) ?? null;
 }
 
@@ -110,12 +132,14 @@ export async function uploadProductImage(productId: string, file: File) {
     .from("product-images")
     .upload(path, file, { cacheControl: "3600", upsert: false });
   if (up.error) throw up.error;
-  const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+  const signed = await supabase.storage
+    .from("product-images")
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
   const { data, error } = await supabase
     .from("product_images")
     .insert({
       product_id: productId,
-      url: pub.publicUrl,
+      url: signed.data?.signedUrl ?? "",
       storage_path: path,
       is_primary: false,
       sort_order: 0,
