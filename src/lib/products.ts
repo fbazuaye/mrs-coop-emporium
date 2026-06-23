@@ -132,7 +132,9 @@ export async function uploadProductImage(productId: string, file: File) {
     .from("product-images")
     .upload(path, file, { cacheControl: "3600", upsert: false });
   if (up.error) throw up.error;
-  const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+  const signed = await supabase.storage
+    .from("product-images")
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
   const { data, error } = await supabase
     .from("product_images")
     .insert({
