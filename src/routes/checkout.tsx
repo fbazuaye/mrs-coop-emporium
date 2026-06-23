@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Wallet, CreditCard, CheckCircle2, ArrowLeft, Lock, Truck } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Wallet, CreditCard, CheckCircle2, ArrowLeft, Lock, Truck, MapPin, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Container } from "@/components/layout/Container";
 import { BrandButton } from "@/components/brand/BrandButton";
@@ -8,7 +9,9 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/catalog-data";
 import { createOrder } from "@/lib/orders";
+import { quoteDelivery, type DeliveryQuote } from "@/lib/delivery.functions";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/checkout")({
 type PaymentMethod = "pay_now" | "credit";
 
 function CheckoutPage() {
-  const { items, subtotal, deliveryFee, total, clear } = useCart();
+  const { items, subtotal, clear } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [method, setMethod] = useState<PaymentMethod>("pay_now");
@@ -38,6 +41,50 @@ function CheckoutPage() {
     city: "",
     notes: "",
   });
+
+  const quoteFn = useServerFn(quoteDelivery);
+  const [quote, setQuote] = useState<DeliveryQuote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+
+  // Debounced auto-quote when address (+ optional city) changes
+  const fullAddress = useMemo(() => {
+    const a = form.address.trim();
+    const c = form.city.trim();
+    if (!a) return "";
+    return c ? `${a}, ${c}` : a;
+  }, [form.address, form.city]);
+
+  useEffect(() => {
+    if (!fullAddress || fullAddress.length < 5) {
+      setQuote(null);
+      setQuoteError(null);
+      return;
+    }
+    let cancelled = false;
+    setQuoting(true);
+    setQuoteError(null);
+    const t = setTimeout(async () => {
+      try {
+        const q = await quoteFn({ data: { address: fullAddress } });
+        if (!cancelled) setQuote(q);
+      } catch (err: any) {
+        if (!cancelled) {
+          setQuote(null);
+          setQuoteError(err?.message ?? "Could not calculate delivery");
+        }
+      } finally {
+        if (!cancelled) setQuoting(false);
+      }
+    }, 800);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [fullAddress, quoteFn]);
+
+  const deliveryFee = quote?.fee ?? 0;
+  const total = subtotal + deliveryFee;
 
   if (items.length === 0) {
     return (
@@ -56,11 +103,12 @@ function CheckoutPage() {
   const update = <K extends keyof typeof form>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const canPlace = form.fullName.trim() && form.phone.trim() && form.address.trim() && form.city.trim();
+  const canPlace =
+    form.fullName.trim() && form.phone.trim() && form.address.trim() && form.city.trim() && quote;
 
   const placeOrder = async () => {
-    if (!canPlace) {
-      toast.error("Please complete delivery details");
+    if (!canPlace || !quote) {
+      toast.error(quote ? "Please complete delivery details" : "Waiting for delivery quote");
       return;
     }
     if (!user) {
@@ -81,6 +129,10 @@ function CheckoutPage() {
         address: form.address,
         city: form.city,
         notes: form.notes || undefined,
+        dest_lat: quote.destination.lat,
+        dest_lng: quote.destination.lng,
+        delivery_distance_m: quote.distanceMeters,
+        delivery_duration_s: quote.durationSeconds,
         items: items.map((i) => ({
           product_id: i.id,
           name: i.name,
@@ -101,6 +153,7 @@ function CheckoutPage() {
       setPlacing(false);
     }
   };
+
 
   return (
     <Container>
@@ -221,9 +274,41 @@ function CheckoutPage() {
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Delivery fee</dt>
                   <dd className="font-semibold tabular-nums text-foreground">
-                    {deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}
+                    {quoting ? (
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Calculating…
+                      </span>
+                    ) : quote ? (
+                      formatPrice(deliveryFee)
+                    ) : (
+                      <span className="text-muted-foreground">Enter address</span>
+                    )}
                   </dd>
                 </div>
+                {quote && (
+                  <div className="rounded-xl bg-muted/40 p-3 text-[11px] text-muted-foreground space-y-1.5">
+                    <div className="flex items-start gap-1.5">
+                      <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                      <span className="truncate">{quote.formattedAddress}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1">
+                        <Truck className="h-3 w-3" />
+                        {(quote.distanceMeters / 1000).toFixed(1)} km from store
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        ~{Math.max(1, Math.round(quote.durationSeconds / 60))} min
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {quoteError && (
+                  <div className="rounded-xl bg-rose-50 p-2 text-[11px] text-rose-700 dark:bg-rose-950/30 dark:text-rose-300">
+                    {quoteError}
+                  </div>
+                )}
+
                 <div className="my-3 h-px bg-border" />
                 <div className="flex items-baseline justify-between">
                   <dt className="font-semibold text-foreground">Total</dt>

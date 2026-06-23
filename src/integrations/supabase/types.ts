@@ -468,6 +468,8 @@ export type Database = {
           city: string
           created_at: string
           delivered_at: string | null
+          delivery_distance_m: number | null
+          delivery_duration_s: number | null
           delivery_fee: number
           dest_lat: number | null
           dest_lng: number | null
@@ -504,6 +506,8 @@ export type Database = {
           city: string
           created_at?: string
           delivered_at?: string | null
+          delivery_distance_m?: number | null
+          delivery_duration_s?: number | null
           delivery_fee?: number
           dest_lat?: number | null
           dest_lng?: number | null
@@ -540,6 +544,8 @@ export type Database = {
           city?: string
           created_at?: string
           delivered_at?: string | null
+          delivery_distance_m?: number | null
+          delivery_duration_s?: number | null
           delivery_fee?: number
           dest_lat?: number | null
           dest_lng?: number | null

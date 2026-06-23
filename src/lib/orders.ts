@@ -28,6 +28,9 @@ export type Order = {
   city: string;
   dest_lat: number | null;
   dest_lng: number | null;
+  delivery_distance_m: number | null;
+  delivery_duration_s: number | null;
+
   notes: string | null;
   assigned_rider_id: string | null;
   status_history: { status: OrderStatus; at: string }[];
@@ -125,6 +128,10 @@ export async function createOrder(input: {
   address: string;
   city: string;
   notes?: string;
+  dest_lat?: number | null;
+  dest_lng?: number | null;
+  delivery_distance_m?: number | null;
+  delivery_duration_s?: number | null;
   items: Array<{
     product_id?: string | null;
     name: string;
@@ -136,6 +143,7 @@ export async function createOrder(input: {
     category?: string | null;
   }>;
 }): Promise<Order> {
+
   const { items, ...orderFields } = input;
   const { data, error } = await db
     .from("orders")
