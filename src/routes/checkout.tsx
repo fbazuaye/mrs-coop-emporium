@@ -29,7 +29,7 @@ export const Route = createFileRoute("/checkout")({
 type PaymentMethod = "pay_now" | "credit";
 
 function CheckoutPage() {
-  const { items, subtotal, deliveryFee, total, clear } = useCart();
+  const { items, subtotal, clear } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [method, setMethod] = useState<PaymentMethod>("pay_now");
@@ -41,6 +41,50 @@ function CheckoutPage() {
     city: "",
     notes: "",
   });
+
+  const quoteFn = useServerFn(quoteDelivery);
+  const [quote, setQuote] = useState<DeliveryQuote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+
+  // Debounced auto-quote when address (+ optional city) changes
+  const fullAddress = useMemo(() => {
+    const a = form.address.trim();
+    const c = form.city.trim();
+    if (!a) return "";
+    return c ? `${a}, ${c}` : a;
+  }, [form.address, form.city]);
+
+  useEffect(() => {
+    if (!fullAddress || fullAddress.length < 5) {
+      setQuote(null);
+      setQuoteError(null);
+      return;
+    }
+    let cancelled = false;
+    setQuoting(true);
+    setQuoteError(null);
+    const t = setTimeout(async () => {
+      try {
+        const q = await quoteFn({ data: { address: fullAddress } });
+        if (!cancelled) setQuote(q);
+      } catch (err: any) {
+        if (!cancelled) {
+          setQuote(null);
+          setQuoteError(err?.message ?? "Could not calculate delivery");
+        }
+      } finally {
+        if (!cancelled) setQuoting(false);
+      }
+    }, 800);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [fullAddress, quoteFn]);
+
+  const deliveryFee = quote?.fee ?? 0;
+  const total = subtotal + deliveryFee;
 
   if (items.length === 0) {
     return (
@@ -59,11 +103,12 @@ function CheckoutPage() {
   const update = <K extends keyof typeof form>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const canPlace = form.fullName.trim() && form.phone.trim() && form.address.trim() && form.city.trim();
+  const canPlace =
+    form.fullName.trim() && form.phone.trim() && form.address.trim() && form.city.trim() && quote;
 
   const placeOrder = async () => {
-    if (!canPlace) {
-      toast.error("Please complete delivery details");
+    if (!canPlace || !quote) {
+      toast.error(quote ? "Please complete delivery details" : "Waiting for delivery quote");
       return;
     }
     if (!user) {
@@ -84,6 +129,10 @@ function CheckoutPage() {
         address: form.address,
         city: form.city,
         notes: form.notes || undefined,
+        dest_lat: quote.destination.lat,
+        dest_lng: quote.destination.lng,
+        delivery_distance_m: quote.distanceMeters,
+        delivery_duration_s: quote.durationSeconds,
         items: items.map((i) => ({
           product_id: i.id,
           name: i.name,
@@ -104,6 +153,7 @@ function CheckoutPage() {
       setPlacing(false);
     }
   };
+
 
   return (
     <Container>
