@@ -17,17 +17,19 @@ import {
 import { Container } from "@/components/layout/Container";
 
 import { ProductRow } from "@/components/catalog/ProductRow";
+import { DbProductCard } from "@/components/catalog/DbProductCard";
 import {
   CATEGORIES,
   FEATURED,
   FLASH_DEALS,
-  RECENTLY_ADDED,
   TOP_SELLING,
   formatPrice,
 } from "@/lib/catalog-data";
 import heroAsset from "@/assets/hero-pineapple.png.asset.json";
 import { useCart } from "@/hooks/use-cart";
 import { fetchActiveSessions, type LiveSession } from "@/lib/live";
+import { fetchProducts, type ProductWithImages } from "@/lib/products";
+import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
