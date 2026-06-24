@@ -58,8 +58,8 @@ export const quoteDelivery = createServerFn({ method: "POST" })
           "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
         },
         body: JSON.stringify({
-          origin: { location: { latLng: STORE_ORIGIN } },
-          destination: { location: { latLng: destination } },
+          origin: { location: { latLng: { latitude: STORE_ORIGIN.lat, longitude: STORE_ORIGIN.lng } } },
+          destination: { location: { latLng: { latitude: destination.lat, longitude: destination.lng } } },
           travelMode: "DRIVE",
           routingPreference: "TRAFFIC_AWARE",
         }),

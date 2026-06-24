@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/catalog-data";
 import { createOrder } from "@/lib/orders";
 import { quoteDelivery, type DeliveryQuote } from "@/lib/delivery.functions";
 import { cn } from "@/lib/utils";
+import { PlacesAutocomplete } from "@/components/checkout/PlacesAutocomplete";
 
 
 export const Route = createFileRoute("/checkout")({
@@ -191,12 +192,16 @@ function CheckoutPage() {
                   placeholder="080..."
                 />
                 <div className="sm:col-span-2">
-                  <Field
-                    label="Delivery address"
-                    value={form.address}
-                    onChange={(v) => update("address", v)}
-                    placeholder="Street, area, landmark"
-                  />
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-semibold text-foreground">
+                      Delivery address
+                    </span>
+                    <PlacesAutocomplete
+                      value={form.address}
+                      onChange={(v) => update("address", v)}
+                      placeholder="Start typing your street, area or landmark"
+                    />
+                  </label>
                 </div>
                 <Field label="City / LGA" value={form.city} onChange={(v) => update("city", v)} />
                 <Field

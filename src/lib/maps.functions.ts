@@ -32,8 +32,8 @@ export const computeRoute = createServerFn({ method: "POST" })
             "routes.polyline.encodedPolyline,routes.distanceMeters,routes.duration",
         },
         body: JSON.stringify({
-          origin: { location: { latLng: data.origin } },
-          destination: { location: { latLng: data.destination } },
+          origin: { location: { latLng: { latitude: data.origin.lat, longitude: data.origin.lng } } },
+          destination: { location: { latLng: { latitude: data.destination.lat, longitude: data.destination.lng } } },
           travelMode: data.travelMode ?? "TWO_WHEELER",
           routingPreference: "TRAFFIC_AWARE",
         }),
