@@ -60,11 +60,11 @@ export function PlacesAutocomplete({
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(async () => {
       try {
-        const { AutocompleteSuggestion } = (await google.maps.importLibrary(
+        const places = (await google.maps.importLibrary(
           "places",
         )) as google.maps.PlacesLibrary;
         const { suggestions: results } =
-          await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          await places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
             input,
             sessionToken: sessionTokenRef.current ?? undefined,
             includedRegionCodes: [country],
