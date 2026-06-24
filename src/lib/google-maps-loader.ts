@@ -4,7 +4,6 @@ let loaderPromise: Promise<typeof google> | null = null;
 declare global {
   interface Window {
     __lovableGmapsInit?: () => void;
-    google: typeof google;
   }
 }
 
