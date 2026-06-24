@@ -43,31 +43,30 @@ function CheckoutPage() {
     notes: "",
   });
 
-  const quoteFn = useServerFn(quoteDelivery);
+  const quoteFn = useServerFn(quoteDeliveryByCoords);
+  const placeDetailsFn = useServerFn(getPlaceDetails);
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
   const [quoting, setQuoting] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<
+    { lat: number; lng: number; formattedAddress: string } | null
+  >(null);
 
-  // Debounced auto-quote when address (+ optional city) changes
-  const fullAddress = useMemo(() => {
-    const a = form.address.trim();
-    const c = form.city.trim();
-    if (!a) return "";
-    return c ? `${a}, ${c}` : a;
-  }, [form.address, form.city]);
-
+  // Recompute the quote whenever a Place is selected. Editing the text after
+  // selection clears it, forcing the user to pick from suggestions again.
   useEffect(() => {
-    if (!fullAddress || fullAddress.length < 5) {
+    if (!selectedPlace) {
       setQuote(null);
       setQuoteError(null);
+      setQuoting(false);
       return;
     }
     let cancelled = false;
     setQuoting(true);
     setQuoteError(null);
-    const t = setTimeout(async () => {
+    (async () => {
       try {
-        const q = await quoteFn({ data: { address: fullAddress } });
+        const q = await quoteFn({ data: selectedPlace });
         if (!cancelled) setQuote(q);
       } catch (err: any) {
         if (!cancelled) {
@@ -77,12 +76,37 @@ function CheckoutPage() {
       } finally {
         if (!cancelled) setQuoting(false);
       }
-    }, 800);
+    })();
     return () => {
       cancelled = true;
-      clearTimeout(t);
     };
-  }, [fullAddress, quoteFn]);
+  }, [selectedPlace, quoteFn]);
+
+  const handleAddressChange = (v: string) => {
+    update("address", v);
+    if (selectedPlace && v !== selectedPlace.formattedAddress && v !== form.address) {
+      setSelectedPlace(null);
+    }
+  };
+
+  const handlePlaceSelect = async (p: { description: string; placeId: string }) => {
+    try {
+      setQuoting(true);
+      setQuoteError(null);
+      const details = await placeDetailsFn({ data: { placeId: p.placeId } });
+      const formatted = details.formattedAddress || p.description;
+      update("address", formatted);
+      setSelectedPlace({
+        lat: details.lat,
+        lng: details.lng,
+        formattedAddress: formatted,
+      });
+    } catch (err: any) {
+      setQuoting(false);
+      setSelectedPlace(null);
+      setQuoteError(err?.message ?? "Could not resolve selected address");
+    }
+  };
 
   const deliveryFee = quote?.fee ?? 0;
   const total = subtotal + deliveryFee;
