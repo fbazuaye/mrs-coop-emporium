@@ -222,9 +222,15 @@ function CheckoutPage() {
                     </span>
                     <PlacesAutocomplete
                       value={form.address}
-                      onChange={(v) => update("address", v)}
+                      onChange={handleAddressChange}
+                      onSelect={handlePlaceSelect}
                       placeholder="Start typing your street, area or landmark"
                     />
+                    {!selectedPlace && form.address.length >= 3 && !quoting && (
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Pick a suggestion to calculate delivery.
+                      </p>
+                    )}
                   </label>
                 </div>
                 <Field label="City / LGA" value={form.city} onChange={(v) => update("city", v)} />
