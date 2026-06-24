@@ -1,13 +1,17 @@
 // Lightweight loader for Google Maps JS API (async) — singleton promise.
-let loaderPromise: Promise<typeof google> | null = null;
+// Relies on @types/google.maps for the `google` global namespace.
+type GoogleNS = typeof window.google;
+
+let loaderPromise: Promise<GoogleNS> | null = null;
 
 declare global {
   interface Window {
+    google: GoogleNS;
     __lovableGmapsInit?: () => void;
   }
 }
 
-export function loadGoogleMaps(): Promise<typeof google> {
+export function loadGoogleMaps(): Promise<GoogleNS> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Google Maps can only load in the browser"));
   }
@@ -23,7 +27,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
     return Promise.reject(new Error("Google Maps browser key missing"));
   }
 
-  loaderPromise = new Promise((resolve, reject) => {
+  loaderPromise = new Promise<GoogleNS>((resolve, reject) => {
     window.__lovableGmapsInit = () => resolve(window.google);
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&libraries=places&callback=__lovableGmapsInit`;
