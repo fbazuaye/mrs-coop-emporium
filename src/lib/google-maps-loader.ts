@@ -1,12 +1,11 @@
 // Lightweight loader for Google Maps JS API (async) — singleton promise.
-// Relies on @types/google.maps for the `google` global namespace.
-type GoogleNS = typeof window.google;
+// Relies on @types/google.maps for the ambient `google` global namespace.
+type GoogleNS = typeof google;
 
 let loaderPromise: Promise<GoogleNS> | null = null;
 
 declare global {
   interface Window {
-    google: GoogleNS;
     __lovableGmapsInit?: () => void;
   }
 }
