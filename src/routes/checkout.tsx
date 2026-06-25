@@ -9,7 +9,14 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/catalog-data";
 import { createOrder } from "@/lib/orders";
-import { quoteDeliveryByCoords, getPlaceDetails, type DeliveryQuote } from "@/lib/delivery.functions";
+import {
+  quoteDeliveryByCoords,
+  quoteDelivery,
+  getPlaceDetails,
+  STORE_ADDRESS,
+  STORE_ORIGIN,
+  type DeliveryQuote,
+} from "@/lib/delivery.functions";
 import { cn } from "@/lib/utils";
 import { PlacesAutocomplete } from "@/components/checkout/PlacesAutocomplete";
 
