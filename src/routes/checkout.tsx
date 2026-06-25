@@ -60,21 +60,44 @@ function CheckoutPage() {
     { lat: number; lng: number; formattedAddress: string } | null
   >(null);
 
-  // Recompute the quote whenever a Place is selected. Editing the text after
-  // selection clears it, forcing the user to pick from suggestions again.
+  // Recompute the quote whenever a Place is selected. If the user typed an
+  // address without picking a suggestion, fall back to server-side geocoding
+  // so the fee still calculates.
   useEffect(() => {
-    if (!selectedPlace) {
+    let cancelled = false;
+    if (selectedPlace) {
+      setQuoting(true);
+      setQuoteError(null);
+      (async () => {
+        try {
+          const q = await quoteFn({ data: selectedPlace });
+          if (!cancelled) setQuote(q);
+        } catch (err: any) {
+          if (!cancelled) {
+            setQuote(null);
+            setQuoteError(err?.message ?? "Could not calculate delivery");
+          }
+        } finally {
+          if (!cancelled) setQuoting(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+    // Fallback: typed address (>= 6 chars), debounce geocode.
+    const addr = form.address.trim();
+    if (addr.length < 6) {
       setQuote(null);
       setQuoteError(null);
       setQuoting(false);
       return;
     }
-    let cancelled = false;
-    setQuoting(true);
-    setQuoteError(null);
-    (async () => {
+    const t = window.setTimeout(async () => {
+      setQuoting(true);
+      setQuoteError(null);
       try {
-        const q = await quoteFn({ data: selectedPlace });
+        const q = await quoteByAddressFn({ data: { address: addr } });
         if (!cancelled) setQuote(q);
       } catch (err: any) {
         if (!cancelled) {
@@ -84,11 +107,12 @@ function CheckoutPage() {
       } finally {
         if (!cancelled) setQuoting(false);
       }
-    })();
+    }, 800);
     return () => {
       cancelled = true;
+      window.clearTimeout(t);
     };
-  }, [selectedPlace, quoteFn]);
+  }, [selectedPlace, quoteFn, quoteByAddressFn, form.address]);
 
   const handleAddressChange = (v: string) => {
     update("address", v);
