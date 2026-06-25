@@ -82,8 +82,8 @@ function TrackingPage() {
         if (!alive) return;
         setOrder(o);
         if (o?.assigned_rider_id) {
-          const r = await fetchRiderById(o.assigned_rider_id);
-          if (alive) setRider(r);
+          const r = await fetchRiderForOrder(orderId, o.assigned_rider_id);
+          if (alive) setRider(r as Rider | null);
         }
         const p = await fetchRecentPings(orderId);
         if (alive) setPings(p);
