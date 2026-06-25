@@ -118,29 +118,23 @@ function TrackingPage() {
     };
   }, [orderId]);
 
-  // When assigned_rider_id changes, fetch rider details + subscribe to its updates
+  // When assigned_rider_id changes, fetch rider details. Live position
+  // updates flow through the rider_locations channel (already subscribed
+  // above) — we no longer subscribe directly to the riders table to avoid
+  // broadcasting rider PII (phone/plate) over Realtime.
   useEffect(() => {
     if (!order?.assigned_rider_id) {
       setRider(null);
       return;
     }
     let alive = true;
-    void fetchRiderById(order.assigned_rider_id).then((r) => {
-      if (alive) setRider(r);
+    void fetchRiderForOrder(orderId, order.assigned_rider_id).then((r) => {
+      if (alive) setRider(r as Rider | null);
     });
-    const channel = supabase
-      .channel(`rider-${order.assigned_rider_id}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "riders", filter: `id=eq.${order.assigned_rider_id}` },
-        (payload) => setRider(payload.new as Rider),
-      )
-      .subscribe();
     return () => {
       alive = false;
-      void supabase.removeChannel(channel);
     };
-  }, [order?.assigned_rider_id]);
+  }, [orderId, order?.assigned_rider_id]);
 
   const riderPos = useMemo(() => {
     if (rider?.current_lat != null && rider?.current_lng != null) {
