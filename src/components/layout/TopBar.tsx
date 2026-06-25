@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, User, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { MobileMenu } from "./MobileMenu";
 import { Logo } from "@/components/brand/Logo";
 import { Container } from "./Container";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,7 +31,8 @@ export function TopBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <Container className="flex h-16 items-center gap-3 sm:gap-4">
+      <Container className="flex h-16 items-center gap-2 sm:gap-4">
+        <MobileMenu />
         <Link to="/" className="shrink-0">
           <Logo />
         </Link>
