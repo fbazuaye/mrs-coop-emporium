@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
   fetchOrderById,
-  fetchRiderById,
+  fetchRiderForOrder,
   fetchRecentPings,
   recordRiderPing,
   decodePolyline,
