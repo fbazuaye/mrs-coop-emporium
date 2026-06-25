@@ -51,6 +51,7 @@ function CheckoutPage() {
   });
 
   const quoteFn = useServerFn(quoteDeliveryByCoords);
+  const quoteByAddressFn = useServerFn(quoteDelivery);
   const placeDetailsFn = useServerFn(getPlaceDetails);
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
   const [quoting, setQuoting] = useState(false);
