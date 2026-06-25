@@ -111,8 +111,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
       { property: "og:description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
       { name: "twitter:description", content: "MRS Staff Coop Store is a dedicated enterprise PWA for the MRS Staff Cooperative Society." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1781917469633-Hero_section_image_2.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1781917469633-Hero_section_image_2.webp" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1782387684516-Hero_section_with_Pineapple_can.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/rBdV8AzSHsXxULnUATeOF94Xe023/social-images/social-1782387684516-Hero_section_with_Pineapple_can.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
