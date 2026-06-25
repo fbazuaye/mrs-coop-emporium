@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
   fetchOrderById,
-  fetchRiderById,
+  fetchRiderForOrder,
   fetchRecentPings,
   recordRiderPing,
   decodePolyline,
@@ -82,8 +82,8 @@ function TrackingPage() {
         if (!alive) return;
         setOrder(o);
         if (o?.assigned_rider_id) {
-          const r = await fetchRiderById(o.assigned_rider_id);
-          if (alive) setRider(r);
+          const r = await fetchRiderForOrder(orderId, o.assigned_rider_id);
+          if (alive) setRider(r as Rider | null);
         }
         const p = await fetchRecentPings(orderId);
         if (alive) setPings(p);
@@ -118,29 +118,23 @@ function TrackingPage() {
     };
   }, [orderId]);
 
-  // When assigned_rider_id changes, fetch rider details + subscribe to its updates
+  // When assigned_rider_id changes, fetch rider details. Live position
+  // updates flow through the rider_locations channel (already subscribed
+  // above) — we no longer subscribe directly to the riders table to avoid
+  // broadcasting rider PII (phone/plate) over Realtime.
   useEffect(() => {
     if (!order?.assigned_rider_id) {
       setRider(null);
       return;
     }
     let alive = true;
-    void fetchRiderById(order.assigned_rider_id).then((r) => {
-      if (alive) setRider(r);
+    void fetchRiderForOrder(orderId, order.assigned_rider_id).then((r) => {
+      if (alive) setRider(r as Rider | null);
     });
-    const channel = supabase
-      .channel(`rider-${order.assigned_rider_id}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "riders", filter: `id=eq.${order.assigned_rider_id}` },
-        (payload) => setRider(payload.new as Rider),
-      )
-      .subscribe();
     return () => {
       alive = false;
-      void supabase.removeChannel(channel);
     };
-  }, [order?.assigned_rider_id]);
+  }, [orderId, order?.assigned_rider_id]);
 
   const riderPos = useMemo(() => {
     if (rider?.current_lat != null && rider?.current_lng != null) {

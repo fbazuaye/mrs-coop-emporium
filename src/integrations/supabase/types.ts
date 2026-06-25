@@ -860,16 +860,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_primary_role: {
-        Args: { _user_id: string }
-        Returns: Database["public"]["Enums"]["app_role"]
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
+      get_rider_for_my_order: {
+        Args: { _order_id: string }
+        Returns: {
+          current_lat: number
+          current_lng: number
+          full_name: string
+          id: string
+          location_updated_at: string
+          rating: number
+        }[]
       }
     }
     Enums: {

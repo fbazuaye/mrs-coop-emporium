@@ -27,6 +27,24 @@ export async function fetchRiderById(id: string): Promise<Rider | null> {
   return (data ?? null) as Rider | null;
 }
 
+/**
+ * Safe rider lookup for customers: returns only non-sensitive fields
+ * (name, rating, current map position) for an order they own.
+ * Falls back to the full rider record when the caller is staff/rider
+ * and has direct SELECT access on the riders table.
+ */
+export async function fetchRiderForOrder(orderId: string, riderId: string): Promise<Partial<Rider> | null> {
+  // Try direct (staff / assigned rider with RLS access)
+  const direct = await db.from("riders").select("*").eq("id", riderId).maybeSingle();
+  if (!direct.error && direct.data) return direct.data as Rider;
+
+  // Customer path: safe RPC that returns only public-safe fields
+  const { data, error } = await (supabase as any).rpc("get_rider_for_my_order", { _order_id: orderId });
+  if (error) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row ?? null) as Partial<Rider> | null;
+}
+
 export async function fetchRecentPings(orderId: string, limit = 50): Promise<RiderPing[]> {
   const { data, error } = await db
     .from("rider_locations")
