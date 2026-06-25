@@ -9,7 +9,14 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPrice } from "@/lib/catalog-data";
 import { createOrder } from "@/lib/orders";
-import { quoteDeliveryByCoords, getPlaceDetails, type DeliveryQuote } from "@/lib/delivery.functions";
+import {
+  quoteDeliveryByCoords,
+  quoteDelivery,
+  getPlaceDetails,
+  STORE_ADDRESS,
+  STORE_ORIGIN,
+  type DeliveryQuote,
+} from "@/lib/delivery.functions";
 import { cn } from "@/lib/utils";
 import { PlacesAutocomplete } from "@/components/checkout/PlacesAutocomplete";
 
@@ -44,6 +51,7 @@ function CheckoutPage() {
   });
 
   const quoteFn = useServerFn(quoteDeliveryByCoords);
+  const quoteByAddressFn = useServerFn(quoteDelivery);
   const placeDetailsFn = useServerFn(getPlaceDetails);
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
   const [quoting, setQuoting] = useState(false);
@@ -52,21 +60,44 @@ function CheckoutPage() {
     { lat: number; lng: number; formattedAddress: string } | null
   >(null);
 
-  // Recompute the quote whenever a Place is selected. Editing the text after
-  // selection clears it, forcing the user to pick from suggestions again.
+  // Recompute the quote whenever a Place is selected. If the user typed an
+  // address without picking a suggestion, fall back to server-side geocoding
+  // so the fee still calculates.
   useEffect(() => {
-    if (!selectedPlace) {
+    let cancelled = false;
+    if (selectedPlace) {
+      setQuoting(true);
+      setQuoteError(null);
+      (async () => {
+        try {
+          const q = await quoteFn({ data: selectedPlace });
+          if (!cancelled) setQuote(q);
+        } catch (err: any) {
+          if (!cancelled) {
+            setQuote(null);
+            setQuoteError(err?.message ?? "Could not calculate delivery");
+          }
+        } finally {
+          if (!cancelled) setQuoting(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+    // Fallback: typed address (>= 6 chars), debounce geocode.
+    const addr = form.address.trim();
+    if (addr.length < 6) {
       setQuote(null);
       setQuoteError(null);
       setQuoting(false);
       return;
     }
-    let cancelled = false;
-    setQuoting(true);
-    setQuoteError(null);
-    (async () => {
+    const t = window.setTimeout(async () => {
+      setQuoting(true);
+      setQuoteError(null);
       try {
-        const q = await quoteFn({ data: selectedPlace });
+        const q = await quoteByAddressFn({ data: { address: addr } });
         if (!cancelled) setQuote(q);
       } catch (err: any) {
         if (!cancelled) {
@@ -76,11 +107,12 @@ function CheckoutPage() {
       } finally {
         if (!cancelled) setQuoting(false);
       }
-    })();
+    }, 800);
     return () => {
       cancelled = true;
+      window.clearTimeout(t);
     };
-  }, [selectedPlace, quoteFn]);
+  }, [selectedPlace, quoteFn, quoteByAddressFn, form.address]);
 
   const handleAddressChange = (v: string) => {
     update("address", v);
@@ -226,12 +258,23 @@ function CheckoutPage() {
                       onSelect={handlePlaceSelect}
                       placeholder="Start typing your street, area or landmark"
                     />
-                    {!selectedPlace && form.address.length >= 3 && !quoting && (
+                    {!selectedPlace && form.address.length >= 3 && !quoting && !quote && (
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        Pick a suggestion to calculate delivery.
+                        Tip: pick a suggestion for the most accurate delivery quote.
                       </p>
                     )}
                   </label>
+                </div>
+                {/* Store reference */}
+                <div className="sm:col-span-2 rounded-xl border border-border/60 bg-muted/30 p-3 text-[11px] text-muted-foreground">
+                  <div className="mb-1 flex items-center gap-1.5 text-foreground">
+                    <MapPin className="h-3 w-3 text-primary" />
+                    <span className="text-xs font-semibold">Delivering from store</span>
+                  </div>
+                  <p className="leading-relaxed">{STORE_ADDRESS}</p>
+                  <p className="mt-1 font-mono tabular-nums">
+                    Lat {STORE_ORIGIN.lat}, Lng {STORE_ORIGIN.lng}
+                  </p>
                 </div>
                 <Field label="City / LGA" value={form.city} onChange={(v) => update("city", v)} />
                 <Field
