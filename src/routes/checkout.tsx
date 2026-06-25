@@ -258,12 +258,23 @@ function CheckoutPage() {
                       onSelect={handlePlaceSelect}
                       placeholder="Start typing your street, area or landmark"
                     />
-                    {!selectedPlace && form.address.length >= 3 && !quoting && (
+                    {!selectedPlace && form.address.length >= 3 && !quoting && !quote && (
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        Pick a suggestion to calculate delivery.
+                        Tip: pick a suggestion for the most accurate delivery quote.
                       </p>
                     )}
                   </label>
+                </div>
+                {/* Store reference */}
+                <div className="sm:col-span-2 rounded-xl border border-border/60 bg-muted/30 p-3 text-[11px] text-muted-foreground">
+                  <div className="mb-1 flex items-center gap-1.5 text-foreground">
+                    <MapPin className="h-3 w-3 text-primary" />
+                    <span className="text-xs font-semibold">Delivering from store</span>
+                  </div>
+                  <p className="leading-relaxed">{STORE_ADDRESS}</p>
+                  <p className="mt-1 font-mono tabular-nums">
+                    Lat {STORE_ORIGIN.lat}, Lng {STORE_ORIGIN.lng}
+                  </p>
                 </div>
                 <Field label="City / LGA" value={form.city} onChange={(v) => update("city", v)} />
                 <Field
