@@ -1,17 +1,14 @@
-## Problem
+# Fix High-Severity Dependency Vulnerabilities
 
-The `live-thumbnails` storage bucket is **private** (Is Public: No), but the upload code uses `supabase.storage.from("live-thumbnails").getPublicUrl(path)`. `getPublicUrl` only works for public buckets — for private ones it returns a URL that 404s, which is why the `<img>` shows a broken-image icon.
+## Issue
+`@tanstack/react-start@1.167.50` pulls in a vulnerable version of `undici` with three high-severity advisories (TLS bypass, WebSocket DoS, SOCKS5 proxy pool reuse).
 
-## Fix
+## Plan
+1. Run `bun update @tanstack/react-start` to pull the latest patched release (which bumps the transitive `undici`).
+2. If the transitive `undici` is still flagged, add a `resolutions`/`overrides` entry in `package.json` pinning `undici` to a patched version (>=6.21.2 / >=7.x as advised).
+3. Run `bun install` and verify the dev server still boots and the build passes.
+4. Re-run the security scan and mark `vulnerable_dependencies_high` as fixed via `manage_security_finding`.
 
-Make the `live-thumbnails` bucket public via a migration. Thumbnails are meant to be displayed on the public homepage and live session pages, so a public bucket is the right model (same as typical product images for an e-commerce storefront).
-
-### Migration
-```sql
-update storage.buckets set public = true where id = 'live-thumbnails';
-```
-
-No code changes needed — `getPublicUrl` will then return a working URL, and the already-uploaded thumbnail (the one shown broken in the screenshot) will start rendering immediately.
-
-### Why not signed URLs
-Signed URLs expire and would force every viewer (including unauthenticated homepage visitors) to mint a URL per view. Public read is simpler and matches how the thumbnails are used.
+## Notes
+- These are server/build-time deps; no app code changes expected.
+- Will not touch the other (medium) finding unless you ask.
