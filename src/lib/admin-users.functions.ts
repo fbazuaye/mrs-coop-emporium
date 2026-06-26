@@ -135,8 +135,8 @@ export const setMemberRoles = createServerFn({ method: "POST" })
         action: "user_roles.update",
         entity_type: "user",
         entity_id: data.userId,
-        metadata: { added: toAdd, removed: toRemove } as never,
-      } as never);
+        metadata: { added: toAdd, removed: toRemove },
+      });
     }
 
     return { ok: true, added: toAdd, removed: toRemove };
