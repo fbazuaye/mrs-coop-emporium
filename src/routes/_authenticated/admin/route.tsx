@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
-import { Package, Tags, AlertTriangle, ArrowLeft, BarChart3 } from "lucide-react";
+import { Package, Tags, AlertTriangle, ArrowLeft, BarChart3, Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -63,6 +63,14 @@ function AdminLayout() {
             >
               <BarChart3 className="h-4 w-4" /> Analytics
             </Link>
+            {role === "super_admin" && (
+              <Link
+                to="/admin/members"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold transition data-[status=active]:border-primary data-[status=active]:bg-primary data-[status=active]:text-primary-foreground sm:text-sm"
+              >
+                <Users className="h-4 w-4" /> Members
+              </Link>
+            )}
           </nav>
         </div>
         <Outlet />
