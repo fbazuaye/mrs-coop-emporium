@@ -32,6 +32,7 @@ import { Route as AuthenticatedTrackOrderIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedRiderEarningsRouteImport } from './routes/_authenticated/rider/earnings'
 import { Route as AuthenticatedRiderOrderIdRouteImport } from './routes/_authenticated/rider/$orderId'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
+import { Route as AuthenticatedAdminMembersRouteImport } from './routes/_authenticated/admin/members'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin/live'
 import { Route as AuthenticatedAdminFleetRouteImport } from './routes/_authenticated/admin/fleet'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
@@ -159,6 +160,12 @@ const AuthenticatedAdminOrdersRoute =
     path: '/orders',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminMembersRoute =
+  AuthenticatedAdminMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminLiveRoute = AuthenticatedAdminLiveRouteImport.update({
   id: '/live',
   path: '/live',
@@ -221,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/members': typeof AuthenticatedAdminMembersRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
   '/rider/earnings': typeof AuthenticatedRiderEarningsRoute
@@ -250,6 +258,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/members': typeof AuthenticatedAdminMembersRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
   '/rider/earnings': typeof AuthenticatedRiderEarningsRoute
@@ -283,6 +292,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/fleet': typeof AuthenticatedAdminFleetRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/_authenticated/admin/members': typeof AuthenticatedAdminMembersRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/rider/$orderId': typeof AuthenticatedRiderOrderIdRoute
   '/_authenticated/rider/earnings': typeof AuthenticatedRiderEarningsRoute
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/live'
+    | '/admin/members'
     | '/admin/orders'
     | '/rider/$orderId'
     | '/rider/earnings'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/fleet'
     | '/admin/live'
+    | '/admin/members'
     | '/admin/orders'
     | '/rider/$orderId'
     | '/rider/earnings'
@@ -377,6 +389,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/fleet'
     | '/_authenticated/admin/live'
+    | '/_authenticated/admin/members'
     | '/_authenticated/admin/orders'
     | '/_authenticated/rider/$orderId'
     | '/_authenticated/rider/earnings'
@@ -565,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/members': {
+      id: '/_authenticated/admin/members'
+      path: '/members'
+      fullPath: '/admin/members'
+      preLoaderRoute: typeof AuthenticatedAdminMembersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/live': {
       id: '/_authenticated/admin/live'
       path: '/live'
@@ -622,6 +642,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminFleetRoute: typeof AuthenticatedAdminFleetRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
+  AuthenticatedAdminMembersRoute: typeof AuthenticatedAdminMembersRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProductsIdRoute: typeof AuthenticatedAdminProductsIdRoute
@@ -635,6 +656,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminFleetRoute: AuthenticatedAdminFleetRoute,
     AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
+    AuthenticatedAdminMembersRoute: AuthenticatedAdminMembersRoute,
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminProductsIdRoute: AuthenticatedAdminProductsIdRoute,
